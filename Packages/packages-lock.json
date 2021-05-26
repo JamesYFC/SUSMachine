@@ -1,12 +1,5 @@
 {
   "dependencies": {
-    "com.adrenak.moq.upm": {
-      "version": "1.0.0",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://package.openupm.com"
-    },
     "com.kdmagic.susmachine": {
       "version": "file:com.kdmagical.susmachine",
       "depth": 0,

@@ -28,7 +28,6 @@ MonoBehaviour:
     m_Name: package.openupm.com
     m_Url: https://package.openupm.com
     m_Scopes:
-    - com.adrenak.moq.upm
     - com.openupm
     m_IsDefault: 0
     m_Capabilities: 0
@@ -41,7 +40,6 @@ MonoBehaviour:
       m_Name: package.openupm.com
       m_Url: https://package.openupm.com
       m_Scopes:
-      - com.adrenak.moq.upm
       - com.openupm
       m_IsDefault: 0
       m_Capabilities: 0
@@ -49,6 +47,5 @@ MonoBehaviour:
     m_Name: package.openupm.com
     m_Url: https://package.openupm.com
     m_Scopes:
-    - com.adrenak.moq.upm
     - com.openupm
     m_SelectedScopeIndex: 0
