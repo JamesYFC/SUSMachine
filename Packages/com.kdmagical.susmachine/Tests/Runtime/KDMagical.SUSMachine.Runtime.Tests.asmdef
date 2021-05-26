@@ -4,7 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "KDMagical.SUSMachine.Runtime"
+        "KDMagical.SUSMachine"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

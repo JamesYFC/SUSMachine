@@ -1,9 +1,7 @@
 {
-    "name": "TestScripts",
+    "name": "KDMagical.SUSMachine",
     "rootNamespace": "",
-    "references": [
-        "GUID:ab423afaa63d1d74ebca716a96321c19"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

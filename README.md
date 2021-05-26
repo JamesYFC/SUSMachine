@@ -20,8 +20,10 @@ void Awake()
         [States.Idle] =
         {
             OnEnter = _ => Debug.Log("entering idle"),
+
             // the StateMachine<States> is passed in as the sole argument
             OnUpdate = fsm => Debug.Log("time since idle: " + fsm.TimeInState),
+
             OnExit = _ => Debug.Log("exiting idle"),
 
             AutoTransitions =
@@ -52,6 +54,12 @@ void Awake()
     stateMachine.Initialize(States.Idle);
 }
 ```
+
+## Installing
+
+In the unity package manager window, click `add package from git URL...` and paste the following:
+
+`https://github.com/JamesYFC/SUSMachine.git?path=/Packages/com.kdmagical.susmachine`
 
 ## State Behaviours
 
