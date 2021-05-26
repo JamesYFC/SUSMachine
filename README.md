@@ -30,8 +30,8 @@ void Awake()
             {
                 // check for spacebar press on update. on true, switch to desired state
                 {
-                    States.Jumping,
-                    _ => Input.GetKeyDown(KeyCode.Space)
+                    _ => Input.GetKeyDown(KeyCode.Space),
+                    States.Jumping
                 }
             }
         },
@@ -44,8 +44,8 @@ void Awake()
             AutoTransitions =
             {
                 {
-                    States.Idle,
-                    fsm => fsm.TimeInState > jumpTime
+                    fsm => fsm.TimeInState > jumpTime,
+                    States.Idle
                 }
             }
         }
@@ -92,11 +92,11 @@ There are two ways to setup automatic transitions:
 
 ### Simple Syntax
 
-The simple syntax is in the format `{NextState, PredicateCondition, TransitionType}`.
-
-- NextState is the enum state that, when the condition resolves true, the state machine should automatically switch to.
+The simple syntax is in the format `{PredicateCondition, NextState, TransitionType}`.
 
 - The predicate condition is simply a function that returns `true` if we should transition to NextState, and `false` otherwise.
+
+- NextState is the enum state that, when the condition resolves true, the state machine should automatically switch to.
 
 - TransitionType (defaults to `TransitionType.Update`) specifies what life cycle loop to make our transition check on.
 
@@ -108,7 +108,7 @@ var stateMachine = new StateMachine<States>
         AutoTransitions =
         {
             // the last parameter is not necessary as it defaults to TransitionType.Update if omitted
-            {States.Jumping, _ => Input.GetKeyDown(KeyCode.Space), TransitionType.Update}
+            {_ => Input.GetKeyDown(KeyCode.Space), States.Jumping, TransitionType.Update}
         }
     }
 }
