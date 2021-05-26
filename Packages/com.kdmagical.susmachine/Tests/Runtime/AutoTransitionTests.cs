@@ -103,8 +103,8 @@ namespace KDMagical.SUSMachine.Tests
             {
                 var sut = new AutoTransitions<States>
                 {
-                    {States.State1, _ => num < 0, transitionType},
-                    {States.State2, _ => num % 2 == 0, transitionType},
+                    {_ => num < 0, States.State1, transitionType},
+                    {_ => num % 2 == 0, States.State2, transitionType},
                 };
 
                 sut.Initialize(stateMachine);

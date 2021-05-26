@@ -22,8 +22,8 @@ public class Test : MonoBehaviour
                 AutoTransitions =
                 {
                     {
-                        States.Jumping,
-                        _ => Input.GetKeyDown(KeyCode.Space)
+                        _ => Input.GetKeyDown(KeyCode.Space),
+                        States.Jumping
                     }
                 }
             },
@@ -36,8 +36,8 @@ public class Test : MonoBehaviour
                 AutoTransitions =
                 {
                     {
-                        States.Idle,
-                        fsm => fsm.TimeInState > jumpTime
+                        fsm => fsm.TimeInState > jumpTime,
+                        States.Idle
                     }
                 }
             }
