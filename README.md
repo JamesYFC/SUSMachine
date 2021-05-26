@@ -179,18 +179,18 @@ var stateMachine = new StateMachine<States>
         AutoTransitions =
         {
             {
-                States.State1,
                 _ => {
                     Debug.Log("first check");
                     return GetJumpHeight() > limit;
-                }
+                },
+                States.State1
             },
             {
-                States.State2,
                 fsm => {
                     Debug.Log("second check");
                     return fsm.TimeInState > jumpTime;
-                }
+                },
+                States.State2
             }
         }
     }
