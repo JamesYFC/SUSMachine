@@ -62,6 +62,10 @@ In the unity package manager window, click `add package from git URL...` and pas
 
 `https://github.com/JamesYFC/SUSMachine.git?path=/Packages/com.kdmagical.susmachine`
 
+Now just import the namespace and you're good to go.
+
+`using KDMagical.SUSMachine`
+
 ## State Behaviours
 
 A state behaviour contains all the actions to call when certain events happen, as well as the automatic transition checks.
