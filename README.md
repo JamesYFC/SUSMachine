@@ -28,6 +28,7 @@ void Awake()
 
             AutoTransitions =
             {
+                // check for spacebar press on update. on true, switch to desired state
                 {
                     States.Jumping,
                     _ => Input.GetKeyDown(KeyCode.Space)
