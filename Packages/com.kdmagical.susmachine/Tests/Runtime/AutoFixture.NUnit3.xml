@@ -1,0 +1,365 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AutoFixture.NUnit3</name>
+    </assembly>
+    <members>
+        <member name="T:AutoFixture.NUnit3.AutoDataAttribute">
+            <summary>
+            This attribute uses AutoFixture to generate values for unit test parameters.
+            This implementation is based on TestCaseAttribute of NUnit3.
+            </summary>
+        </member>
+        <member name="P:AutoFixture.NUnit3.AutoDataAttribute.TestMethodBuilder">
+            <summary>
+            Gets or sets the current <see cref="T:AutoFixture.NUnit3.ITestMethodBuilder"/> strategy.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.AutoDataAttribute.#ctor">
+            <summary>
+            Construct a <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/>.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.AutoDataAttribute.#ctor(AutoFixture.IFixture)">
+            <summary>
+            Construct a <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/> with an <see cref="T:AutoFixture.IFixture"/>.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.AutoDataAttribute.#ctor(System.Func{AutoFixture.IFixture})">
+            <summary>
+            Initializes a new instance of the <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/> class
+            with the supplied <paramref name="fixtureFactory"/>. Fixture will be created
+            on demand using the provided factory.
+            </summary>
+            <param name="fixtureFactory">The fixture factory used to construct the fixture.</param>
+        </member>
+        <member name="M:AutoFixture.NUnit3.AutoDataAttribute.BuildFrom(NUnit.Framework.Interfaces.IMethodInfo,NUnit.Framework.Internal.Test)">
+            <summary>
+                Construct one or more TestMethods from a given MethodInfo,
+                using available parameter data.
+            </summary>
+            <param name="method">The MethodInfo for which tests are to be constructed.</param>
+            <param name="suite">The suite to which the tests will be added.</param>
+            <returns>One or more TestMethods.</returns>
+        </member>
+        <member name="T:AutoFixture.NUnit3.CustomizeAttribute">
+            <summary>
+            Base class for customizing parameters in methods decorated with
+            <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/>.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.CustomizeAttribute.GetCustomization(System.Reflection.ParameterInfo)">
+            <summary>
+            Gets a customization for a parameter.
+            </summary>
+            <param name="parameter">The parameter for which the customization is requested.</param>
+            <returns></returns>
+        </member>
+        <member name="T:AutoFixture.NUnit3.FavorArraysAttribute">
+            <summary>
+            An attribute that can be applied to parameters in an <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/>-driven
+            TestCase to indicate that the parameter value should be created using a constructor with one
+            or more array arguments, if applicable.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.FavorArraysAttribute.GetCustomization(System.Reflection.ParameterInfo)">
+            <summary>
+            Gets a customization that associates a <see cref="T:AutoFixture.Kernel.ArrayFavoringConstructorQuery"/> with
+            the <see cref="T:System.Type"/> of the parameter.
+            </summary>
+            <param name="parameter">The parameter for which the customization is requested.</param>
+            <returns>
+            A customization that associates a <see cref="T:AutoFixture.Kernel.ArrayFavoringConstructorQuery"/> with the
+            <see cref="T:System.Type"/> of the parameter.
+            </returns>
+        </member>
+        <member name="T:AutoFixture.NUnit3.FavorEnumerablesAttribute">
+            <summary>
+            An attribute that can be applied to parameters in an <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/>-driven
+            TestCase to indicate that the parameter value should be created using a constructor with one
+            or more <see cref="T:System.Collections.Generic.IEnumerable`1" /> arguments, if applicable.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.FavorEnumerablesAttribute.GetCustomization(System.Reflection.ParameterInfo)">
+            <summary>
+            Gets a customization that associates a <see cref="T:AutoFixture.Kernel.EnumerableFavoringConstructorQuery"/>
+            with the <see cref="T:System.Type"/> of the parameter.
+            </summary>
+            <param name="parameter">The parameter for which the customization is requested.</param>
+            <returns>
+            A customization that associates a <see cref="T:AutoFixture.Kernel.EnumerableFavoringConstructorQuery"/> with
+            the <see cref="T:System.Type"/> of the parameter.
+            </returns>
+        </member>
+        <member name="T:AutoFixture.NUnit3.FavorListsAttribute">
+            <summary>
+            An attribute that can be applied to parameters in an <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/>-driven
+            TestCase to indicate that the parameter value should be created using a constructor with one
+            or more <see cref="T:System.Collections.Generic.IList`1" /> arguments, if applicable.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.FavorListsAttribute.GetCustomization(System.Reflection.ParameterInfo)">
+            <summary>
+            Gets a customization that associates a <see cref="T:AutoFixture.Kernel.ListFavoringConstructorQuery"/> with
+            the <see cref="T:System.Type"/> of the parameter.
+            </summary>
+            <param name="parameter">The parameter for which the customization is requested.</param>
+            <returns>
+            A customization that associates a <see cref="T:AutoFixture.Kernel.ListFavoringConstructorQuery"/> with the
+            <see cref="T:System.Type"/> of the parameter.
+            </returns>
+        </member>
+        <member name="T:AutoFixture.NUnit3.FixedNameTestMethodBuilder">
+            <summary>
+            Builder that generates <see cref="T:NUnit.Framework.Internal.TestMethod"/> with fixed names.
+            This might be needed by some test runners to correctly identify tests between the discovery and execution
+            (e.g. Nunit test adaptor for Visual Studio, NCrunch).
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.FixedNameTestMethodBuilder.Build(NUnit.Framework.Interfaces.IMethodInfo,NUnit.Framework.Internal.Test,System.Collections.Generic.IEnumerable{System.Object},System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:AutoFixture.NUnit3.FixedNameTestMethodBuilder.EnsureOriginalArgumentsArrayIsNotShared(NUnit.Framework.Internal.TestCaseParameters)">
+            <summary>
+            Before NUnit 3.5 the Arguments and OriginalArguments properties are referencing the same array, so
+            we cannot safely update the OriginalArguments without touching the Arguments value.
+            This method fixes that by making the OriginalArguments array a standalone copy.
+            <para>
+            When running in NUnit3.5 and later the method is supposed to do nothing.
+            </para>
+            </summary>
+        </member>
+        <member name="T:AutoFixture.NUnit3.FrozenAttribute">
+            <summary>
+            An attribute that can be applied to parameters in an <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/>-driven
+            TestCase to indicate that the parameter value should be frozen so that the same instance is
+            returned every time the <see cref="T:AutoFixture.IFixture"/> creates an instance of that type.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.FrozenAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:AutoFixture.NUnit3.FrozenAttribute"/> class.
+            </summary>
+            <remarks>
+            The <see cref="T:AutoFixture.NUnit3.Matching"/> criteria used to determine
+            which requests will be satisfied by the frozen parameter value
+            is <see cref="F:AutoFixture.NUnit3.Matching.ExactType"/>.
+            </remarks>
+        </member>
+        <member name="M:AutoFixture.NUnit3.FrozenAttribute.#ctor(AutoFixture.NUnit3.Matching)">
+            <summary>
+            Initializes a new instance of the <see cref="T:AutoFixture.NUnit3.FrozenAttribute"/> class.
+            </summary>
+            <param name="by">
+            The <see cref="T:AutoFixture.NUnit3.Matching"/> criteria used to determine
+            which requests will be satisfied by the frozen parameter value.
+            </param>
+        </member>
+        <member name="P:AutoFixture.NUnit3.FrozenAttribute.By">
+            <summary>
+            Gets the <see cref="T:AutoFixture.NUnit3.Matching"/> criteria used to determine
+            which requests will be satisfied by the frozen parameter value.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.FrozenAttribute.GetCustomization(System.Reflection.ParameterInfo)">
+            <summary>
+            Gets a <see cref="T:AutoFixture.FreezeOnMatchCustomization"/> configured
+            to match requests based on the <see cref="T:System.Type"/> and optionally
+            the name of the parameter.
+            </summary>
+            <param name="parameter">
+            The parameter for which the customization is requested.
+            </param>
+            <returns>
+            A <see cref="T:AutoFixture.FreezeOnMatchCustomization"/> configured
+            to match requests based on the <see cref="T:System.Type"/> and optionally
+            the name of the parameter.
+            </returns>
+        </member>
+        <member name="T:AutoFixture.NUnit3.GreedyAttribute">
+            <summary>
+            An attribute that can be applied to parameters in an <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/>-driven
+            TestCase to indicate that the parameter value should be created using the most greedy
+            constructor that can be satisfied by an <see cref="T:AutoFixture.IFixture"/>.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.GreedyAttribute.GetCustomization(System.Reflection.ParameterInfo)">
+            <summary>
+            Gets a customization that associates a <see cref="T:AutoFixture.Kernel.GreedyConstructorQuery"/> with the
+            <see cref="T:System.Type"/> of the parameter.
+            </summary>
+            <param name="parameter">The parameter for which the customization is requested.</param>
+            <returns>
+            A customization that associates a <see cref="T:AutoFixture.Kernel.GreedyConstructorQuery"/> with the
+            <see cref="T:System.Type"/> of the parameter.
+            </returns>
+        </member>
+        <member name="T:AutoFixture.NUnit3.InlineAutoDataAttribute">
+            <summary>
+            This attribute acts as a TestCaseAttribute but allow incomplete parameter values,
+            which will be provided by AutoFixture.
+            </summary>
+        </member>
+        <member name="P:AutoFixture.NUnit3.InlineAutoDataAttribute.TestMethodBuilder">
+            <summary>
+            Gets or sets the current <see cref="T:AutoFixture.NUnit3.ITestMethodBuilder"/> strategy.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.InlineAutoDataAttribute.#ctor(System.Object[])">
+            <summary>
+            Construct a <see cref="T:AutoFixture.NUnit3.InlineAutoDataAttribute"/> with parameter values for test method.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.InlineAutoDataAttribute.#ctor(AutoFixture.IFixture,System.Object[])">
+            <summary>
+            Construct a <see cref="T:AutoFixture.NUnit3.InlineAutoDataAttribute"/> with an <see cref="T:AutoFixture.IFixture"/>
+            and parameter values for test method.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.InlineAutoDataAttribute.#ctor(System.Func{AutoFixture.IFixture},System.Object[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/> class
+            with the supplied <paramref name="fixtureFactory"/>. Fixture will be created
+            on demand using the provided factory.
+            </summary>
+        </member>
+        <member name="P:AutoFixture.NUnit3.InlineAutoDataAttribute.Arguments">
+            <summary>
+            Gets the parameter values for the test method.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.InlineAutoDataAttribute.BuildFrom(NUnit.Framework.Interfaces.IMethodInfo,NUnit.Framework.Internal.Test)">
+            <summary>
+                Construct one or more TestMethods from a given MethodInfo,
+                using available parameter data.
+            </summary>
+            <param name="method">The MethodInfo for which tests are to be constructed.</param>
+            <param name="suite">The suite to which the tests will be added.</param>
+            <returns>One or more TestMethods.</returns>
+        </member>
+        <member name="M:AutoFixture.NUnit3.InlineAutoDataAttribute.GetParameterValues(NUnit.Framework.Interfaces.IMethodInfo)">
+            <summary>
+            Get values for a collection of <see cref="T:NUnit.Framework.Interfaces.IParameterInfo"/>.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.InlineAutoDataAttribute.GetValueForParameter(NUnit.Framework.Interfaces.IParameterInfo)">
+            <summary>
+            Get value for an <see cref="T:NUnit.Framework.Interfaces.IParameterInfo"/>.
+            </summary>
+        </member>
+        <member name="T:AutoFixture.NUnit3.ITestMethodBuilder">
+            <summary>
+            Utility used to create a <see cref="T:NUnit.Framework.Internal.TestMethod"/> instance.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.ITestMethodBuilder.Build(NUnit.Framework.Interfaces.IMethodInfo,NUnit.Framework.Internal.Test,System.Collections.Generic.IEnumerable{System.Object},System.Int32)">
+            <summary>
+            Builds a <see cref="T:NUnit.Framework.Internal.TestCaseParameters"/> from a method and the argument values.
+            </summary>
+            <param name="method">The <see cref="T:NUnit.Framework.Interfaces.IMethodInfo"/> for which tests are to be constructed.</param>
+            <param name="suite">The suite to which the tests will be added.</param>
+            <param name="parameterValues">The argument values generated for the test case.</param>
+            <param name="autoDataStartIndex">Index at which the automatically generated values start.</param>
+        </member>
+        <member name="T:AutoFixture.NUnit3.Matching">
+            <summary>
+            The criteria used to determine which requests will be satisfied
+            by the frozen specimen created for a parameter
+            decorated with the <see cref="T:AutoFixture.NUnit3.FrozenAttribute"/> attribute.
+            </summary>
+        </member>
+        <member name="F:AutoFixture.NUnit3.Matching.ExactType">
+            <summary>
+            Matches requests for the exact same <see cref="T:System.Type"/>
+            as the type of the parameter.
+            </summary>
+        </member>
+        <member name="F:AutoFixture.NUnit3.Matching.DirectBaseType">
+            <summary>
+            Matches requests for a <see cref="T:System.Type"/> that is
+            a direct base of the type of the parameter.
+            </summary>
+        </member>
+        <member name="F:AutoFixture.NUnit3.Matching.ImplementedInterfaces">
+            <summary>
+            Matches requests for an interface <see cref="T:System.Type"/> that is
+            implemented by the type of the parameter.
+            </summary>
+        </member>
+        <member name="F:AutoFixture.NUnit3.Matching.ParameterName">
+            <summary>
+            Matches requests for a <see cref="T:System.Reflection.ParameterInfo"/> whose
+            <see cref="T:System.Type"/> is compatible with the type of the parameter
+            and has a specific name.
+            </summary>
+        </member>
+        <member name="F:AutoFixture.NUnit3.Matching.PropertyName">
+            <summary>
+            Matches requests for a <see cref="T:System.Reflection.PropertyInfo"/> whose
+            <see cref="T:System.Type"/> is compatible with the type of the parameter
+            and has a specific name.
+            </summary>
+        </member>
+        <member name="F:AutoFixture.NUnit3.Matching.FieldName">
+            <summary>
+            Matches requests for a <see cref="T:System.Reflection.FieldInfo"/> whose
+            <see cref="T:System.Type"/> is compatible with the type of the parameter
+            and has a specific name.
+            </summary>
+        </member>
+        <member name="F:AutoFixture.NUnit3.Matching.MemberName">
+            <summary>
+            Matches requests for a parameter, property or field whose
+            <see cref="T:System.Type"/> is compatible with the type of the parameter
+            and has a specific name.
+            </summary>
+        </member>
+        <member name="T:AutoFixture.NUnit3.ModestAttribute">
+            <summary>
+            An attribute that can be applied to parameters in an <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/>-driven
+            TestCase to indicate that the parameter value should be created using the most modest
+            constructor that can be satisfied by an <see cref="T:AutoFixture.IFixture"/>.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.ModestAttribute.GetCustomization(System.Reflection.ParameterInfo)">
+            <summary>
+            Gets a customization that associates a <see cref="T:AutoFixture.Kernel.ModestConstructorQuery"/> with the
+            <see cref="T:System.Type"/> of the parameter.
+            </summary>
+            <param name="parameter">The parameter for which the customization is requested.</param>
+            <returns>
+            A customization that associates a <see cref="T:AutoFixture.Kernel.ModestConstructorQuery"/> with the
+            <see cref="T:System.Type"/> of the parameter.
+            </returns>
+        </member>
+        <member name="T:AutoFixture.NUnit3.NoAutoPropertiesAttribute">
+            <summary>
+            An attribute that can be applied to parameters in an <see cref="T:AutoFixture.NUnit3.AutoDataAttribute"/>-driven
+            TestCase to indicate that the parameter value should not have properties auto populated
+            when the <see cref="T:AutoFixture.IFixture"/> creates an instance of that type.
+            </summary>
+        </member>
+        <member name="M:AutoFixture.NUnit3.NoAutoPropertiesAttribute.GetCustomization(System.Reflection.ParameterInfo)">
+            <summary>
+            Gets a customization that stops auto population of properties for the type of the parameter.
+            </summary>
+            <param name="parameter">The parameter for which the customization is requested.</param>
+            <returns>
+            A customization that stops auto population of the <see cref="T:System.Type"/> of the parameter.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="parameter"/> is null.
+            </exception>
+        </member>
+        <member name="T:AutoFixture.NUnit3.VolatileNameTestMethodBuilder">
+            Creates <see cref="T:NUnit.Framework.Internal.TestMethod"/> instances with name that includes actual argument values.
+            <para>
+            Notice, this strategy might break compatibility with some test runners that rely on stable test names
+            (e.g. Visual Studio with NUnit3TestAdapter, NCrunch), therefore use this strategy with caution.
+            </para>
+        </member>
+        <member name="M:AutoFixture.NUnit3.VolatileNameTestMethodBuilder.Build(NUnit.Framework.Interfaces.IMethodInfo,NUnit.Framework.Internal.Test,System.Collections.Generic.IEnumerable{System.Object},System.Int32)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,10 @@
+{
+  "name": "com.kdmagic.susmachine",
+  "version": "0.0.1",
+  "displayName": "Simple Unity State Machine",
+  "description": "A finite state machine library built for Unity.",
+  "unity": "2018.4",
+  "author": {
+    "name": "Yu Feng Chen"
+  }
+}
