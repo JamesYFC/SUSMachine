@@ -2,9 +2,9 @@
 
 A state machine implementation with two goals in mind:
 
-- Easy and nice to use API - no reflection or string names
+- Quick, easy and nice to use API - no reflection or string names, no need to make a million subclasses
 
-- Transitions support - for both simple and complex conditions
+- Describe a lot of behaviour and transitions without writing much code
 
 ## A Quick Glance
 
