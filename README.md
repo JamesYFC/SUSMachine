@@ -54,6 +54,12 @@ void Awake()
     // Initialize can be called at any time when you're ready -- not just in Awake()
     stateMachine.Initialize(States.Idle);
 }
+
+void OnDestroy()
+{
+    // Make sure you call this when you are done with the state machine -- often this means in OnDestroy()
+    stateMachine.Close();
+}
 ```
 
 ## Installing
@@ -81,6 +87,22 @@ The available actions are:
 - `OnUpdate`
 - `OnFixedUpdate`
 - `OnLateUpdate`
+
+### Splitting Out
+
+If you find that your functions get too large to be written in lambda syntax, or for any other reason, you can write them elsewhere -- as long as they have the matching signature `void MyFunc(IStateMachine<MyStates> fsm)`.
+
+```cs
+// in state machine init...
+[States.SomeState] = {
+    OnEnter = SomeFunc
+}
+
+void SomeFunc(IStateMachine<States> stateMachine)
+{
+    // ...
+}
+```
 
 ## Automatic Transitions
 

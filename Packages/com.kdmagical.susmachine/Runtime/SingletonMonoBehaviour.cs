@@ -43,6 +43,7 @@ public class SingletonMonoBehaviour<T> : MonoBehaviour where T : SingletonMonoBe
     private static void CreateNewSingletonInstance()
     {
         var go = new GameObject(typeof(T).Name, typeof(T));
+        DontDestroyOnLoad(go);
         instance = go.GetComponent<T>();
     }
 

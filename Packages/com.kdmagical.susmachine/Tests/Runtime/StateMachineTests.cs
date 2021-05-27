@@ -27,6 +27,29 @@ namespace KDMagical.SUSMachine.Tests
             }
 
             [Test, AutoMoqData]
+            public void Register_And_Deregister_Called(
+                IStateMachineManager manager,
+                States state)
+            {
+                var stateBehaviourMock = new Mock<StateBehaviour<States>>();
+
+                var sut = new StateMachine<States>(manager)
+                {
+                    [state] = stateBehaviourMock.Object
+                };
+
+                var stateManagerMock = Mock.Get<IStateMachineManager>(manager);
+
+                sut.Initialize(state);
+
+                stateManagerMock.Verify(m => m.Register(sut), Times.Once);
+
+                sut.Close();
+
+                stateManagerMock.Verify(m => m.Deregister(sut), Times.Once);
+            }
+
+            [Test, AutoMoqData]
             public void Enter_Exit_Actions_Called(IStateMachineManager manager)
             {
                 var behaviourMock1 = new Mock<StateBehaviour<States>>();

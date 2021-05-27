@@ -5,7 +5,7 @@ public class Test : MonoBehaviour
 {
     private enum States { Idle, Jumping }
 
-    private float jumpTime = 5f;
+    private float jumpTime = 4f;
 
     private StateMachine<States> stateMachine;
 
@@ -17,7 +17,7 @@ public class Test : MonoBehaviour
             {
                 OnEnter = _ => Debug.Log("entering idle"),
                 OnUpdate = fsm => Debug.Log("time since idle: " + fsm.TimeInState),
-                OnExit = _ => Debug.Log("exiting idle"),
+                OnExit = SomeFunc,
 
                 AutoTransitions =
                 {
@@ -44,5 +44,15 @@ public class Test : MonoBehaviour
         };
 
         stateMachine.Initialize(States.Idle);
+    }
+
+    private void SomeFunc(IStateMachine<States> stateMachine)
+    {
+        Debug.Log("SomeFunc Called");
+    }
+
+    private void OnDestroy()
+    {
+        stateMachine.Close();
     }
 }

@@ -34,11 +34,12 @@ namespace KDMagical.SUSMachine
         {
             get
             {
-                if (!stateBehaviours.ContainsKey(state))
+                if (!stateBehaviours.TryGetValue(state, out var stateBehaviour))
                 {
-                    stateBehaviours[state] = new StateBehaviour<T>();
+                    stateBehaviour = new StateBehaviour<T>();
+                    stateBehaviours.Add(state, stateBehaviour);
                 }
-                return stateBehaviours[state];
+                return stateBehaviour;
             }
             set => stateBehaviours[state] = value;
         }

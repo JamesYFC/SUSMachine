@@ -33,18 +33,24 @@ namespace KDMagical.SUSMachine
 
         public void Add(AutoTransition<TStates> transition, TransitionType transitionType = TransitionType.Update)
         {
-            if (!transitionsByType.ContainsKey(transitionType))
-                transitionsByType.Add(transitionType, new List<AutoTransition<TStates>>());
+            if (!transitionsByType.TryGetValue(transitionType, out var transitions))
+            {
+                transitions = new List<AutoTransition<TStates>>();
+                transitionsByType.Add(transitionType, transitions);
+            }
 
-            transitionsByType[transitionType].Add(transition);
+            transitions.Add(transition);
         }
 
         public void Add(Predicate<IStateMachine<TStates>> condition, TStates targetState, TransitionType transitionType = TransitionType.Update)
         {
-            if (!transitionsByType.ContainsKey(transitionType))
-                transitionsByType.Add(transitionType, new List<AutoTransition<TStates>>());
+            if (!transitionsByType.TryGetValue(transitionType, out var transitions))
+            {
+                transitions = new List<AutoTransition<TStates>>();
+                transitionsByType.Add(transitionType, transitions);
+            }
 
-            transitionsByType[transitionType].Add(
+            transitions.Add(
                 stateMachine => condition(stateMachine)
                     ? (TStates?)targetState
                     : null
