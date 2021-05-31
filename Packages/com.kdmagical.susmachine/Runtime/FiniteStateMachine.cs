@@ -15,7 +15,6 @@ namespace KDMagical.SUSMachine
     public interface IStateMachine<T> : IStateMachine where T : struct, System.Enum
     {
         T CurrentState { get; }
-        StateBehaviour<T> this[T state] { get; }
 
         void Initialize(T initialState);
         void Close();
@@ -23,92 +22,143 @@ namespace KDMagical.SUSMachine
         void SetState(T newState);
     }
 
-    public class StateMachine<T> : IStateMachine<T> where T : struct, System.Enum
+    public abstract class StateMachineBase<T> : IStateMachine<T> where T : struct, System.Enum
     {
-        event System.EventHandler someEvent;
-        UnityEngine.Events.UnityEvent someUnityEvent;
+        public T CurrentState { get; protected set; }
 
-        private Dictionary<T, StateBehaviour<T>> stateBehaviours = new Dictionary<T, StateBehaviour<T>>();
+        protected abstract IEnumerable<IStateBehaviour<T>> StateBehaviours { get; }
+        protected abstract IStateBehaviour<T> CurrentStateBehaviourBase { get; }
 
-        public StateBehaviour<T> this[T state]
-        {
-            get
-            {
-                if (!stateBehaviours.TryGetValue(state, out var stateBehaviour))
-                {
-                    stateBehaviour = new StateBehaviour<T>();
-                    stateBehaviours.Add(state, stateBehaviour);
-                }
-                return stateBehaviour;
-            }
-            set => stateBehaviours[state] = value;
-        }
-
-        public StateBehaviour<T> CurrentStateBehaviour => this[CurrentState];
-
-        public T CurrentState { get; private set; }
-
-        private float currentStateEnterTime;
+        protected float currentStateEnterTime;
         public float TimeInState => Time.time - currentStateEnterTime;
 
-        private IStateMachineManager stateMachineManager;
+        protected IStateMachineManager stateMachineManager { get; private set; }
 
-        public StateMachine() : this(StateMachineManager.Instance) { }
+        protected bool HasUpdateFunctions { get; private set; }
 
-        public StateMachine(IStateMachineManager stateMachineManager)
+        public StateMachineBase() : this(StateMachineManager.Instance) { }
+
+        public StateMachineBase(IStateMachineManager stateMachineManager)
         {
             this.stateMachineManager = stateMachineManager;
         }
 
         public void Initialize(T initialState)
         {
-            foreach (var behaviour in stateBehaviours.Values)
+            foreach (var behaviour in StateBehaviours)
             {
                 behaviour.Initialize(this);
             }
 
-            stateMachineManager.Register(this);
+            HasUpdateFunctions = CheckForUpdateFunctions();
+            if (HasUpdateFunctions)
+                stateMachineManager.Register(this);
+
             CurrentState = initialState;
             currentStateEnterTime = Time.time;
-            CurrentStateBehaviour.DoEnter();
+            CurrentStateBehaviourBase.DoEnter();
+        }
+
+        /// <summary>
+        /// Returns false if no update loop actions or transitions are set on any behaviours in this state machine.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual bool CheckForUpdateFunctions()
+        {
+            foreach (var behaviour in StateBehaviours)
+            {
+                if (behaviour.HasUpdateFunctions())
+                    return true;
+            }
+            return false;
         }
 
         public void Close()
         {
-            stateMachineManager.Deregister(this);
-        }
-
-        public void SetState(T newState)
-        {
-            CurrentStateBehaviour.DoExit();
-            CurrentState = newState;
-            currentStateEnterTime = Time.time;
-            CurrentStateBehaviour.DoEnter();
+            if (HasUpdateFunctions)
+                stateMachineManager.Deregister(this);
         }
 
         public void DoUpdate()
         {
             CheckForAutoTransitions(TransitionType.Update);
-            CurrentStateBehaviour.DoUpdate();
+            CurrentStateBehaviourBase.DoUpdate();
         }
 
         public void DoFixedUpdate()
         {
             CheckForAutoTransitions(TransitionType.FixedUpdate);
-            CurrentStateBehaviour.DoFixedUpdate();
+            CurrentStateBehaviourBase.DoFixedUpdate();
         }
 
         public void DoLateUpdate()
         {
             CheckForAutoTransitions(TransitionType.LateUpdate);
-            CurrentStateBehaviour.DoLateUpdate();
+            CurrentStateBehaviourBase.DoLateUpdate();
         }
 
         private void CheckForAutoTransitions(TransitionType transitionMode)
         {
-            var transitionResult = CurrentStateBehaviour.CheckAutoTransitions(transitionMode);
+            var transitionResult = CurrentStateBehaviourBase.CheckAutoTransitions(transitionMode);
             if (transitionResult != null)
                 SetState(transitionResult.Value);
+        }
+
+        public void SetState(T newState)
+        {
+            CurrentStateBehaviourBase.DoExit();
+            CurrentState = newState;
+            currentStateEnterTime = Time.time;
+            CurrentStateBehaviourBase.DoEnter();
+        }
+    }
+
+    public class StateMachine<T> : StateMachineBase<T> where T : struct, System.Enum
+    {
+        private Dictionary<T, StateBehaviour<T>> stateBehaviours = new Dictionary<T, StateBehaviour<T>>();
+        protected override IEnumerable<IStateBehaviour<T>> StateBehaviours => stateBehaviours.Values;
+
+        public StateBehaviour<T> this[T state]
+        {
+            get => stateBehaviours.GetOrCreate(state);
+            set => stateBehaviours[state] = value;
+        }
+
+        public StateBehaviour<T> CurrentStateBehaviour => this[CurrentState];
+        protected override IStateBehaviour<T> CurrentStateBehaviourBase => CurrentStateBehaviour;
+
+        public StateMachine() : base() { }
+
+        public StateMachine(IStateMachineManager stateMachineManager) : base(stateMachineManager) { }
+    }
+
+    public class StateMachine<TStates, TEvents> : StateMachineBase<TStates>
+        where TStates : struct, System.Enum
+        where TEvents : struct, System.Enum
+    {
+        private Dictionary<TStates, StateBehaviour<TStates, TEvents>> stateBehaviours =
+            new Dictionary<TStates, StateBehaviour<TStates, TEvents>>();
+
+        protected override IEnumerable<IStateBehaviour<TStates>> StateBehaviours => stateBehaviours.Values;
+
+        public StateBehaviour<TStates, TEvents> this[TStates state]
+        {
+            get => stateBehaviours.GetOrCreate(state);
+            set => stateBehaviours[state] = value;
+        }
+
+        public StateBehaviour<TStates, TEvents> CurrentStateBehaviour => this[CurrentState];
+        protected override IStateBehaviour<TStates> CurrentStateBehaviourBase => CurrentStateBehaviour;
+
+        public StateMachine() : base() { }
+
+        public StateMachine(IStateMachineManager stateMachineManager) : base(stateMachineManager) { }
+
+        public void TriggerEvent(TEvents fsmEvent)
+        {
+            var nextState = CurrentStateBehaviour.TriggerEvent(fsmEvent);
+            if (nextState != null)
+                SetState(nextState.Value);
         }
     }
 }

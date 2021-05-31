@@ -23,19 +23,19 @@ namespace KDMagical.SUSMachine.Tests
 
                 stateBehaviourMock.Verify(s => s.Initialize(sut), Times.Once);
                 stateBehaviourMock.Verify(s => s.DoEnter(), Times.Once);
-                stateBehaviourMock.VerifyNoOtherCalls();
             }
 
             [Test, AutoMoqData]
             public void Register_And_Deregister_Called(
                 IStateMachineManager manager,
-                States state)
+                States state,
+                StateAction<States> stateAction)
             {
-                var stateBehaviourMock = new Mock<StateBehaviour<States>>();
-
                 var sut = new StateMachine<States>(manager)
                 {
-                    [state] = stateBehaviourMock.Object
+                    [state] = {
+                        OnUpdate = stateAction
+                    }
                 };
 
                 var stateManagerMock = Mock.Get<IStateMachineManager>(manager);
@@ -65,20 +65,14 @@ namespace KDMagical.SUSMachine.Tests
                 behaviourMock1.Verify(s => s.Initialize(sut), Times.Once);
                 behaviourMock2.Verify(s => s.Initialize(sut), Times.Once);
                 behaviourMock1.Verify(s => s.DoEnter(), Times.Once);
-                behaviourMock1.VerifyNoOtherCalls();
-                behaviourMock2.VerifyNoOtherCalls();
 
                 sut.SetState(States.State2);
                 behaviourMock1.Verify(s => s.DoExit(), Times.Once);
                 behaviourMock2.Verify(s => s.DoEnter(), Times.Once);
-                behaviourMock1.VerifyNoOtherCalls();
-                behaviourMock2.VerifyNoOtherCalls();
             }
 
             [Test, AutoMoqData]
-            public void Tick_Actions_Called(
-                IStateMachineManager manager,
-                States state)
+            public void Tick_Actions_Called(IStateMachineManager manager, States state)
             {
                 var behaviourMock = new Mock<StateBehaviour<States>>();
 
@@ -90,28 +84,149 @@ namespace KDMagical.SUSMachine.Tests
                 sut.Initialize(state);
                 behaviourMock.Verify(s => s.Initialize(sut), Times.Once);
                 behaviourMock.Verify(s => s.DoEnter(), Times.Once);
-                behaviourMock.VerifyNoOtherCalls();
 
                 sut.DoUpdate();
                 behaviourMock.Verify(
                     x => x.CheckAutoTransitions(TransitionType.Update),
                     Times.Once);
                 behaviourMock.Verify(x => x.DoUpdate(), Times.Once);
-                behaviourMock.VerifyNoOtherCalls();
 
                 sut.DoFixedUpdate();
                 behaviourMock.Verify(
                     x => x.CheckAutoTransitions(TransitionType.FixedUpdate),
                     Times.Once);
                 behaviourMock.Verify(x => x.DoFixedUpdate(), Times.Once);
-                behaviourMock.VerifyNoOtherCalls();
 
                 sut.DoLateUpdate();
                 behaviourMock.Verify(
                     x => x.CheckAutoTransitions(TransitionType.LateUpdate),
                     Times.Once);
                 behaviourMock.Verify(x => x.DoLateUpdate(), Times.Once);
-                behaviourMock.VerifyNoOtherCalls();
+            }
+
+            [Test, AutoMoqData]
+            public void Registration_No_Behaviours_Register_Not_Called(IStateMachineManager manager, States state)
+            {
+                var managerMock = Mock.Get(manager);
+
+                var sut = new StateMachine<States>(manager);
+
+                sut.Initialize(state);
+                managerMock.Verify(m => m.Register(sut), Times.Never);
+
+                sut.Close();
+                managerMock.Verify(m => m.Deregister(sut), Times.Never);
+            }
+
+            [Test, AutoMoqData]
+            public void Registration_No_Update_Methods_Register_Not_Called(IStateMachineManager manager, States state, StateAction<States> stateAction)
+            {
+                var managerMock = Mock.Get(manager);
+
+                var sut = new StateMachine<States, Events>(manager)
+                {
+                    [States.State1] = {
+                        OnEnter = stateAction
+                    },
+
+                    [States.State2] = {
+                        OnExit = stateAction,
+
+                        Transitions = {
+                            {States.State1, Events.Event1}
+                        }
+                    }
+                };
+
+                sut.Initialize(state);
+                managerMock.Verify(m => m.Register(sut), Times.Never);
+
+                sut.Close();
+                managerMock.Verify(m => m.Deregister(sut), Times.Never);
+            }
+
+            [Test, AutoMoqData]
+            public void Registration_Update_Action_Register_Called(IStateMachineManager manager, States state, StateAction<States> stateAction)
+            {
+                var managerMock = Mock.Get(manager);
+
+                var sut = new StateMachine<States>(manager)
+                {
+                    [state] = {
+                        OnUpdate = stateAction
+                    },
+                };
+
+                sut.Initialize(state);
+                managerMock.Verify(m => m.Register(sut), Times.Once);
+
+                sut.Close();
+                managerMock.Verify(m => m.Deregister(sut), Times.Once);
+            }
+
+            [Test, AutoMoqData]
+            public void Registration_FixedUpdate_Action_Register_Called(IStateMachineManager manager, States state, StateAction<States> stateAction)
+            {
+                var managerMock = Mock.Get(manager);
+
+                var sut = new StateMachine<States>(manager)
+                {
+                    [state] = {
+                        OnFixedUpdate = stateAction
+                    },
+                };
+
+                sut.Initialize(state);
+                managerMock.Verify(m => m.Register(sut), Times.Once);
+
+                sut.Close();
+                managerMock.Verify(m => m.Deregister(sut), Times.Once);
+            }
+
+            [Test, AutoMoqData]
+            public void Registration_LateUpdate_Action_Register_Called(IStateMachineManager manager, States state, StateAction<States> stateAction)
+            {
+                var managerMock = Mock.Get(manager);
+
+                var sut = new StateMachine<States>(manager)
+                {
+                    [state] = {
+                        OnLateUpdate = stateAction
+                    },
+                };
+
+                sut.Initialize(state);
+                managerMock.Verify(m => m.Register(sut), Times.Once);
+
+                sut.Close();
+                managerMock.Verify(m => m.Deregister(sut), Times.Once);
+            }
+
+            [Test]
+            [InlineAutoMoqData(TransitionType.Update)]
+            [InlineAutoMoqData(TransitionType.FixedUpdate)]
+            [InlineAutoMoqData(TransitionType.LateUpdate)]
+            public void Registration_Update_Action_Register_Called(
+                TransitionType transitionType,
+                IStateMachineManager manager,
+                States state)
+            {
+                var managerMock = Mock.Get(manager);
+
+                var sut = new StateMachine<States>(manager)
+                {
+                    [state] = {
+                        Transitions = {
+                            {_ => true, state, transitionType}
+                        }
+                    },
+                };
+
+                sut.Initialize(state);
+                managerMock.Verify(m => m.Register(sut), Times.Once);
+
+                sut.Close();
+                managerMock.Verify(m => m.Deregister(sut), Times.Once);
             }
         }
     }

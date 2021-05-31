@@ -28,6 +28,7 @@ namespace KDMagical.SUSMachine.Tests
     public partial class SUSMachineTests
     {
         public enum States { State1, State2, State3 }
+        public enum Events { Event1, Event2, Event3 }
 
         public class MockStateActions
         {
@@ -51,6 +52,25 @@ namespace KDMagical.SUSMachine.Tests
                 update = Update;
                 fixedUpdate = FixedUpdate;
                 lateUpdate = LateUpdate;
+            }
+        }
+
+        public class MockEventActions
+        {
+
+            public Mock<StateAction<States>> Event1Action { get; } = CreateActionMock();
+            public Mock<StateAction<States>> Event2Action { get; } = CreateActionMock();
+            public Mock<StateAction<States>> Event3Action { get; } = CreateActionMock();
+
+            public void Deconstruct(
+                out Mock<StateAction<States>> event1Action,
+                out Mock<StateAction<States>> event2Action,
+                out Mock<StateAction<States>> event3Action
+            )
+            {
+                event1Action = Event1Action;
+                event2Action = Event2Action;
+                event3Action = Event3Action;
             }
         }
 

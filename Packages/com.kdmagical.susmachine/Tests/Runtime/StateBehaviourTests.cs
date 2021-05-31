@@ -27,42 +27,143 @@ namespace KDMagical.SUSMachine.Tests
                 sut.DoEnter();
 
                 enter.Verify(f => f(stateMachine), Times.Once);
-                exit.Verify(f => f(It.IsAny<IStateMachine<States>>()), Times.Never);
-                update.Verify(f => f(It.IsAny<IStateMachine<States>>()), Times.Never);
-                fixedUpdate.Verify(f => f(It.IsAny<IStateMachine<States>>()), Times.Never);
-                lateUpdate.Verify(f => f(It.IsAny<IStateMachine<States>>()), Times.Never);
+                exit.VerifyNoOtherCalls();
+                update.VerifyNoOtherCalls();
+                fixedUpdate.VerifyNoOtherCalls();
+                lateUpdate.VerifyNoOtherCalls();
 
                 sut.DoExit();
 
-                enter.Verify(f => f(stateMachine), Times.Once);
+                enter.VerifyNoOtherCalls();
                 exit.Verify(f => f(stateMachine), Times.Once);
-                update.Verify(f => f(It.IsAny<IStateMachine<States>>()), Times.Never);
-                fixedUpdate.Verify(f => f(It.IsAny<IStateMachine<States>>()), Times.Never);
-                lateUpdate.Verify(f => f(It.IsAny<IStateMachine<States>>()), Times.Never);
+                update.VerifyNoOtherCalls();
+                fixedUpdate.VerifyNoOtherCalls();
+                lateUpdate.VerifyNoOtherCalls();
 
                 sut.DoUpdate();
 
-                enter.Verify(f => f(stateMachine), Times.Once);
-                exit.Verify(f => f(stateMachine), Times.Once);
+                enter.VerifyNoOtherCalls();
+                exit.VerifyNoOtherCalls();
                 update.Verify(f => f(stateMachine), Times.Once);
-                fixedUpdate.Verify(f => f(It.IsAny<IStateMachine<States>>()), Times.Never);
-                lateUpdate.Verify(f => f(It.IsAny<IStateMachine<States>>()), Times.Never);
+                fixedUpdate.VerifyNoOtherCalls();
+                lateUpdate.VerifyNoOtherCalls();
 
                 sut.DoFixedUpdate();
 
-                enter.Verify(f => f(stateMachine), Times.Once);
-                exit.Verify(f => f(stateMachine), Times.Once);
-                update.Verify(f => f(stateMachine), Times.Once);
+                enter.VerifyNoOtherCalls();
+                exit.VerifyNoOtherCalls();
+                update.VerifyNoOtherCalls();
                 fixedUpdate.Verify(f => f(stateMachine), Times.Once);
-                lateUpdate.Verify(f => f(It.IsAny<IStateMachine<States>>()), Times.Never);
+                lateUpdate.VerifyNoOtherCalls();
 
                 sut.DoLateUpdate();
 
-                enter.Verify(f => f(stateMachine), Times.Once);
-                exit.Verify(f => f(stateMachine), Times.Once);
-                update.Verify(f => f(stateMachine), Times.Once);
-                fixedUpdate.Verify(f => f(stateMachine), Times.Once);
+                enter.VerifyNoOtherCalls();
+                exit.VerifyNoOtherCalls();
+                update.VerifyNoOtherCalls();
+                fixedUpdate.VerifyNoOtherCalls();
                 lateUpdate.Verify(f => f(stateMachine), Times.Once);
+            }
+
+            [Test, AutoMoqData]
+            public void StateBehaviour_Events_Calls_Actions(IStateMachine<States> stateMachine)
+            {
+                var (enter, exit, update, fixedUpdate, lateUpdate) = new MockStateActions();
+                var (event1, event2, event3) = new MockEventActions();
+
+                var sut = new StateBehaviour<States, Events>
+                {
+                    OnEnter = enter.Object,
+                    OnExit = exit.Object,
+                    OnUpdate = update.Object,
+                    OnFixedUpdate = fixedUpdate.Object,
+                    OnLateUpdate = lateUpdate.Object,
+
+                    OnEvents = {
+                        [Events.Event1] = event1.Object,
+                        [Events.Event2] = event2.Object,
+                        [Events.Event3] = event3.Object
+                    }
+                };
+
+                sut.Initialize(stateMachine);
+
+                sut.DoEnter();
+
+                enter.Verify(f => f(stateMachine), Times.Once);
+                exit.VerifyNoOtherCalls();
+                update.VerifyNoOtherCalls();
+                fixedUpdate.VerifyNoOtherCalls();
+                lateUpdate.VerifyNoOtherCalls();
+
+                sut.DoExit();
+
+                enter.VerifyNoOtherCalls();
+                exit.Verify(f => f(stateMachine), Times.Once);
+                update.VerifyNoOtherCalls();
+                fixedUpdate.VerifyNoOtherCalls();
+                lateUpdate.VerifyNoOtherCalls();
+
+                sut.DoUpdate();
+
+                enter.VerifyNoOtherCalls();
+                exit.VerifyNoOtherCalls();
+                update.Verify(f => f(stateMachine), Times.Once);
+                fixedUpdate.VerifyNoOtherCalls();
+                lateUpdate.VerifyNoOtherCalls();
+
+                sut.DoFixedUpdate();
+
+                enter.VerifyNoOtherCalls();
+                exit.VerifyNoOtherCalls();
+                update.VerifyNoOtherCalls();
+                fixedUpdate.Verify(f => f(stateMachine), Times.Once);
+                lateUpdate.VerifyNoOtherCalls();
+
+                sut.DoLateUpdate();
+
+                enter.VerifyNoOtherCalls();
+                exit.VerifyNoOtherCalls();
+                update.VerifyNoOtherCalls();
+                fixedUpdate.VerifyNoOtherCalls();
+                lateUpdate.Verify(f => f(stateMachine), Times.Once);
+
+                sut.TriggerEvent(Events.Event1);
+
+                event1.Verify(f => f(stateMachine), Times.Once);
+                event2.VerifyNoOtherCalls();
+                event3.VerifyNoOtherCalls();
+
+                sut.TriggerEvent(Events.Event2);
+
+                event1.VerifyNoOtherCalls();
+                event2.Verify(f => f(stateMachine), Times.Once);
+                event3.VerifyNoOtherCalls();
+
+                sut.TriggerEvent(Events.Event3);
+
+                event1.VerifyNoOtherCalls();
+                event2.VerifyNoOtherCalls();
+                event3.Verify(f => f(stateMachine), Times.Once);
+            }
+
+            [Test]
+            [InlineAutoMoqData(Events.Event1, States.State1)]
+            [InlineAutoMoqData(Events.Event2, null)]
+            public void StateBehaviour_Events_Returns_Transition(
+                Events eventToTrigger,
+                States? expectedState,
+                IStateMachine<States> stateMachine
+            )
+            {
+                var sut = new StateBehaviour<States, Events>
+                {
+                    Transitions = {
+                        {States.State1, Events.Event1}
+                    }
+                };
+
+                Assert.AreEqual(sut.TriggerEvent(eventToTrigger), expectedState);
             }
         }
     }

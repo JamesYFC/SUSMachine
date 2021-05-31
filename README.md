@@ -9,44 +9,39 @@ A state machine implementation with two goals in mind:
 ## A Quick Glance
 
 ```cs
-float jumpTime = 5f;
-enum States { Idle, Jumping }
-StateMachine<States> stateMachine;
+enum States { Normal, Blocking }
+enum Events { Attacked }
 
-void Awake()
+private void Awake()
 {
-    stateMachine = new StateMachine<States>
+    var fsm = new StateMachine<States, Events>
     {
-        [States.Idle] =
+        [States.Normal] =
         {
-            OnEnter = _ => Debug.Log("entering idle"),
+            OnEnter = _ => Debug.Log("Return to idle"),
 
-            // the StateMachine<States> is passed in as the sole argument
-            OnUpdate = fsm => Debug.Log("time since idle: " + fsm.TimeInState),
+            OnUpdate = fsm => Debug.Log("Time idling: " + fsm.TimeInState),
 
-            OnExit = _ => Debug.Log("exiting idle"),
+            OnExit = _ => Debug.Log("Exiting idle"),
 
-            AutoTransitions =
-            {
-                // check for spacebar press on update. on true, switch to desired state
-                {
-                    _ => Input.GetKeyDown(KeyCode.Space),
-                    States.Jumping
-                }
+            OnEvents = {
+                [Events.Attacked] = _ => health--
+            },
+
+            Transitions = {
+                // in this state, check in update for space press. enter blocking state if true
+                {_ => Input.GetKeyDown(KeyCode.Space), States.Blocking}
             }
         },
 
-        [States.Jumping] =
+        [States.Blocking] =
         {
-            OnEnter = _ => Debug.Log("entering jumping"),
-            OnExit = _ => Debug.Log("exiting jumping"),
+            OnEvents = {
+                [Events.Attacked] = _ => Debug.Log("Attack blocked")
+            },
 
-            AutoTransitions =
-            {
-                {
-                    fsm => fsm.TimeInState > jumpTime,
-                    States.Idle
-                }
+            Transitions = {
+                {fsm => fsm.TimeInState >= blockTime, States.Normal}
             }
         }
     };
@@ -55,14 +50,19 @@ void Awake()
     stateMachine.Initialize(States.Idle);
 }
 
+void OnCollisionEnter(Collision collision)
+{
+    stateMachine.TriggerEvent(Events.Attacked);
+}
+
 void OnDestroy()
 {
-    // Make sure you call this when you are done with the state machine -- often this means in OnDestroy()
+    // Call this when you are done with the state machine -- often this means in OnDestroy()
     stateMachine.Close();
 }
 ```
 
-## Installing
+# Installing
 
 In the unity package manager window, click `add package from git URL...` and paste the following:
 
@@ -74,9 +74,9 @@ Now just import the namespace and you're good to go.
 using KDMagical.SUSMachine
 ```
 
-## State Behaviours
+# State Behaviours
 
-A state behaviour contains all the actions to call when certain events happen, as well as the automatic transition checks.
+A state behaviour contains all the actions to call when certain events happen, as well as the transitions.
 
 The state machine is provided as the sole parameter when calling these actions.
 
@@ -87,24 +87,32 @@ The available actions are:
 - `OnUpdate`
 - `OnFixedUpdate`
 - `OnLateUpdate`
+- `OnEvents` (when events are enabled)
 
-### Splitting Out
+## Events
 
-If you find that your functions get too large to be written in lambda syntax, or for any other reason, you can write them elsewhere -- as long as they have the matching signature `void MyFunc(IStateMachine<MyStates> fsm)`.
+State behaviours also support events for actions and transitions.
+
+Simply add another generic parameter to `StateMachine` to enable this support.
 
 ```cs
-// in state machine init...
-[States.SomeState] = {
-    OnEnter = SomeFunc
-}
+// without events
+var fsm = new StateMachine<States> { }
 
-void SomeFunc(IStateMachine<States> stateMachine)
+// with events
+var fsm = new StateMachine<States, Events>
 {
-    // ...
+    [States.State1] = {
+        OnEvents = {
+            [Events.Event1] = _ => Debug.Log("Event1 Triggered!")
+        }
+    }
 }
 ```
 
-## Automatic Transitions
+## Transitions
+
+### Automatic
 
 Automatic transitions are functions that run on a specified update loop (`Update`, `FixedUpdate` or `LateUpdate`) before any behaviour actions trigger, checking for if the state machine should automatically switch to another state.
 
@@ -112,82 +120,135 @@ You can setup as many automatic transitions as you want on a specific state beha
 
 There are two ways to setup automatic transitions:
 
-### Simple Syntax
+#### _Simple Syntax_
 
-The simple syntax is in the format `{PredicateCondition, NextState, TransitionType}`.
-
-- The predicate condition is simply a function that returns `true` if we should transition to NextState, and `false` otherwise.
-
-- NextState is the enum state that, when the condition resolves true, the state machine should automatically switch to.
-
-- TransitionType (defaults to `TransitionType.Update`) specifies what life cycle loop to make our transition check on.
+`{PredicateCondition, State, TransitionType}`
 
 ```cs
 var stateMachine = new StateMachine<States>
 {
     [States.Idle] =
     {
-        AutoTransitions =
+        Transitions =
         {
-            // the last parameter is not necessary as it defaults to TransitionType.Update if omitted
-            {_ => Input.GetKeyDown(KeyCode.Space), States.Jumping, TransitionType.Update}
+            {
+                // if this returns true, enter the state specified.
+                _ => Input.GetKeyDown(KeyCode.Space),
+                // the state to enter if the predicate returned true.
+                States.Jumping,
+                // the update loop to run on. Can be omitted as Update is the default.
+                TransitionType.Update
+            }
         }
     }
 }
 ```
 
-### Complex Syntax
+#### _Complex Syntax_
 
-This syntax allows you to define a function where you can return any state or `null`, allowing you to set up several conditions in the same place.
+`{TransitionFunction, TransitionType}`
+
+Allows you to define a function where you can return any state or `null`, allowing you to set up several conditions in the same place.
 
 The following example is a simple switch case, but the logic in this function can be as complex as you need.
 
 ```cs
-var stateMachine = new StateMachine<States>
+Transitions =
 {
-    [States.Idle] =
     {
-        AutoTransitions =
-        {
+        _ => {
+            switch (someNum)
             {
-                _ => {
-                    switch (someNum)
-                    {
-                        case 1:
-                            return States.State1;
-                        case 2:
-                            return States.State2;
-                        case 3:
-                            return States.State3;
-                        default:
-                            return null;
-                    }
-                }
-            },
-            // this last parameter is not necessary as it will default to TransitionType.Update if omitted
-            TransitionType.Update
+                case 1:
+                    return States.State1;
+                case 2:
+                    return States.State2;
+                case 3:
+                    return States.State3;
+                default:
+                    return null;
+            }
         }
-    }
+    },
+    // this last parameter is not necessary as it will default to TransitionType.Update if omitted
+    TransitionType.Update
 }
 ```
 
 In some cases, such as below, the compiler can't figure out that the returned type is `States?`.
 
-You simply need to cast one of the returns like so:
+If this happens you simply need to cast one of the returns like so:
 
 ```cs
 [States.Idle] =
 {
-    AutoTransitions =
+    Transitions =
     {
-        {_ => someNum < 0 ? States.State1 : (States?)null}
+        {
+            _ => someNum < 0
+                ? States.State1
+                : (States?)null
+        }
     }
 }
 ```
 
+### Event Transitions
+
+There are several ways to write event transitions.
+
+These are only run when the event is triggered, directly after any event actions are called.
+
+#### _Direct_
+
+`{State, Event}`
+
+Enters the specified state when the event is called.
+
+```cs
+Transitions =
+{
+    { States.State1, Events.Event1 }
+}
+```
+
+#### _Simple_
+
+`{PredicateCondition, State, Event}`
+
+```cs
+Transitions =
+{
+    // when the event is triggered, the condition is called. Enters State1 if the condition is true.
+    { someNum > 0, States.State1, Events.Event1 }
+}
+```
+
+#### _Complex_
+
+`{TransitionFunction, Event}`
+
+Allows you to define a function where you can return any state or `null`, allowing you to set up several conditions in the same place.
+
+```cs
+Transitions =
+{
+    _ => someNum switch
+    {
+        1 => States.State1,
+        2 => States.State2,
+        var x when x >= 3 => States.State3,
+        _ => null
+    },
+    Events.Event1
+}
+```
+
+###
+
 ### Order
 
-As soon as the first AutoTransition returns a positive result, the state machine will switch its state to that result.
+As soon as the first automatic transition in a particular update loop returns a positive result, the state machine will switch its state to that result.
 
 Therefore, the order in which you set your transitions matters.
 
@@ -198,7 +259,7 @@ var stateMachine = new StateMachine<States>
 {
     [States.Jumping] =
     {
-        AutoTransitions =
+        Transitions =
         {
             {
                 _ => {
@@ -242,5 +303,21 @@ void StateCheck()
     {
         stateMachine.SetState(States.State1);
     }
+}
+```
+
+## Splitting Out
+
+If you find that your functions get too large to be written in lambda syntax, or for any other reason, you can write them elsewhere -- as long as they have the matching signature `void MyFunc(IStateMachine<MyStates> fsm)`.
+
+```cs
+// in state machine init...
+[States.SomeState] = {
+    OnEnter = SomeFunc
+}
+
+void SomeFunc(IStateMachine<States> stateMachine)
+{
+    // ...
 }
 ```
