@@ -19,7 +19,7 @@ public class Test : MonoBehaviour
                 OnUpdate = fsm => Debug.Log("time since idle: " + fsm.TimeInState),
                 OnExit = SomeFunc,
 
-                AutoTransitions =
+                Transitions =
                 {
                     {
                         _ => Input.GetKeyDown(KeyCode.Space),
@@ -33,7 +33,7 @@ public class Test : MonoBehaviour
                 OnEnter = _ => Debug.Log("entering jumping"),
                 OnExit = _ => Debug.Log("exiting jumping"),
 
-                AutoTransitions =
+                Transitions =
                 {
                     {
                         fsm => fsm.TimeInState > jumpTime,

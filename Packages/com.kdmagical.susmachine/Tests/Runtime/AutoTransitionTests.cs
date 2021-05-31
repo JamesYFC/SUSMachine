@@ -15,7 +15,7 @@ namespace KDMagical.SUSMachine.Tests
                 var fixedUpdateTransition = new Mock<AutoTransition<States>>();
                 var lateUpdateTransition = new Mock<AutoTransition<States>>();
 
-                var sut = new AutoTransitions<States>
+                var sut = new Transitions<States>
                 {
                     {updateTransition.Object, TransitionType.Update},
                     {fixedUpdateTransition.Object, TransitionType.FixedUpdate},
@@ -48,9 +48,9 @@ namespace KDMagical.SUSMachine.Tests
             }
 
             [Test, AutoMoqData]
-            public void TransitionCheck_ShouldReturn_NextState(IStateMachine<States> stateMachine)
+            public void TransitionCheck_Returns_NextState(IStateMachine<States> stateMachine)
             {
-                var sut = new AutoTransitions<States>
+                var sut = new Transitions<States>
                 {
                     {_ => States.State1, TransitionType.Update},
                     {_ => null, TransitionType.FixedUpdate}
@@ -64,9 +64,9 @@ namespace KDMagical.SUSMachine.Tests
             }
 
             [Test, AutoMoqData]
-            public void TransitionCheck_ShouldReturn_Null_On_NoTransitions(IStateMachine<States> stateMachine)
+            public void TransitionCheck_Returns_Null_On_NoTransitions(IStateMachine<States> stateMachine)
             {
-                var sut = new AutoTransitions<States> { };
+                var sut = new Transitions<States> { };
 
                 sut.Initialize(stateMachine);
 
@@ -80,7 +80,7 @@ namespace KDMagical.SUSMachine.Tests
                 IStateMachine<States> stateMachine,
                 TransitionType transitionType)
             {
-                var sut = new AutoTransitions<States>
+                var sut = new Transitions<States>
                 {
                     {_ => States.State1, transitionType},
                     {_ => States.State2, transitionType},
@@ -95,13 +95,13 @@ namespace KDMagical.SUSMachine.Tests
             [InlineAutoMoqData(-1, States.State1)]
             [InlineAutoMoqData(2, States.State2)]
             [InlineAutoMoqData(3, null)]
-            public void TransitionCheck_SimpleForm_ShouldReturn_CorrectState(
+            public void TransitionCheck_SimpleForm_Returns_CorrectState(
                 int num,
                 States? expectedResult,
                 TransitionType transitionType,
                 IStateMachine<States> stateMachine)
             {
-                var sut = new AutoTransitions<States>
+                var sut = new Transitions<States>
                 {
                     {_ => num < 0, States.State1, transitionType},
                     {_ => num % 2 == 0, States.State2, transitionType},
@@ -117,13 +117,13 @@ namespace KDMagical.SUSMachine.Tests
             [InlineAutoMoqData(2, States.State2)]
             [InlineAutoMoqData(3, States.State3)]
             [InlineAutoMoqData(400, null)]
-            public void TransitionCheck_ComplexForm_Conditionals_ShouldReturn_CorrectState(
+            public void TransitionCheck_Mixed_Returns_CorrectState(
                 int num,
                 States? expectedResult,
                 TransitionType transitionType,
                 IStateMachine<States> stateMachine)
             {
-                var sut = new AutoTransitions<States>
+                var sut = new Transitions<States>
                 {
                     {_ => num < 0 ? (States?)States.State1 : null, transitionType},
                     {_ => {
@@ -154,6 +154,96 @@ namespace KDMagical.SUSMachine.Tests
                 sut.Initialize(stateMachine);
 
                 Assert.AreEqual(sut.CheckTransitions(transitionType), expectedResult);
+            }
+
+            [Test]
+            [InlineAutoMoqData(Events.Event1, States.State1)]
+            [InlineAutoMoqData(Events.Event2, null)]
+            public void TransitionCheck_Events_SuperSimpleForm_Returns_CorrectState(
+                Events fsmEventToTrigger,
+                States? expectedState,
+                IStateMachine<States> stateMachine)
+            {
+                var sut = new Transitions<States, Events> { { States.State1, Events.Event1 } };
+
+                sut.Initialize(stateMachine);
+
+                Assert.AreEqual(sut.CheckEventTransitions(fsmEventToTrigger), expectedState);
+            }
+
+            [Test]
+            [InlineAutoMoqData(Events.Event1, true, States.State1)]
+            [InlineAutoMoqData(Events.Event1, false, null)]
+            [InlineAutoMoqData(Events.Event2, true, null)]
+            [InlineAutoMoqData(Events.Event2, false, null)]
+            public void TransitionCheck_Events_SimpleForm_Returns_CorrectState(
+                Events fsmEventToTrigger,
+                bool conditionShouldPass,
+                States? expectedState,
+                IStateMachine<States> stateMachine)
+            {
+                var sut = new Transitions<States, Events> { {
+                    _ => conditionShouldPass,
+                    States.State1,
+                    Events.Event1
+                } };
+
+                sut.Initialize(stateMachine);
+
+                Assert.AreEqual(sut.CheckEventTransitions(fsmEventToTrigger), expectedState);
+            }
+
+            [Test]
+            [InlineAutoMoqData(Events.Event1, 1, States.State1)]
+            [InlineAutoMoqData(Events.Event1, 2, States.State2)]
+            [InlineAutoMoqData(Events.Event1, 3, States.State3)]
+            [InlineAutoMoqData(Events.Event1, 0, null)]
+            [InlineAutoMoqData(Events.Event2, 1, null)]
+            [InlineAutoMoqData(Events.Event2, 0, null)]
+            public void TransitionCheck_Events_ComplexForm_Returns_CorrectState(
+                Events fsmEventToTrigger,
+                int num,
+                States? expectedState,
+                IStateMachine<States> stateMachine)
+            {
+                var sut = new Transitions<States, Events> { {
+                    _ => num switch
+                    {
+                        1 => States.State1,
+                        2 => States.State2,
+                        3 => States.State3,
+                        _ => null
+                    },
+                    Events.Event1
+                } };
+
+                sut.Initialize(stateMachine);
+
+                Assert.AreEqual(sut.CheckEventTransitions(fsmEventToTrigger), expectedState);
+            }
+
+            [Test]
+            [InlineAutoMoqData(Events.Event1, 1, States.State1)]
+            [InlineAutoMoqData(Events.Event1, -1, States.State1)]
+            [InlineAutoMoqData(Events.Event2, 1, States.State3)]
+            [InlineAutoMoqData(Events.Event2, -4, States.State2)]
+            [InlineAutoMoqData(Events.Event2, -5, null)]
+            public void TransitionCheck_Events_Mixed_Returns_CorrectState(
+                Events fsmEventToTrigger,
+                int num,
+                States? expectedState,
+                IStateMachine<States> stateMachine)
+            {
+                var sut = new Transitions<States, Events> {
+                    {States.State1, Events.Event1},
+                    {_ => num > 0, States.State2, Events.Event1}, // event1 should never return State2
+                    {_ => num > 0, States.State3, Events.Event2},
+                    {_ => num % 2 == 0 ? States.State2 : (States?)null, Events.Event2}
+                };
+
+                sut.Initialize(stateMachine);
+
+                Assert.AreEqual(sut.CheckEventTransitions(fsmEventToTrigger), expectedState);
             }
         }
     }

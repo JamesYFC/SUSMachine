@@ -1,17 +1,28 @@
-﻿namespace KDMagical.SUSMachine
-{
-    public delegate void StateAction<T>(IStateMachine<T> state) where T : struct, System.Enum;
+﻿using System.Collections.Generic;
 
-    /// <summary>
-    /// Contains the Action delegates and AutoTransitions of a particular state.
-    /// </summary>
-    /// <typeparam name="TStates"></typeparam>
-    public class StateBehaviour<TStates>
+namespace KDMagical.SUSMachine
+{
+    public interface IStateBehaviour<T> where T : struct, System.Enum
+    {
+        void Initialize(IStateMachine<T> stateMachine);
+
+        void DoEnter();
+        void DoExit();
+        void DoUpdate();
+        void DoFixedUpdate();
+        void DoLateUpdate();
+
+        T? CheckAutoTransitions(TransitionType transitionType);
+    }
+
+    public delegate void StateAction<T>(IStateMachine<T> stateMachine) where T : struct, System.Enum;
+
+    public abstract class StateBehaviourBase<TStates> : IStateBehaviour<TStates>
         where TStates : struct, System.Enum
     {
-        private IStateMachine<TStates> stateMachine;
+        protected IStateMachine<TStates> StateMachine { get; private set; }
 
-        public AutoTransitions<TStates> AutoTransitions { get; set; } = new AutoTransitions<TStates>();
+        protected abstract Transitions<TStates> TransitionsBase { get; }
 
         public StateAction<TStates> OnEnter { get; set; }
         public StateAction<TStates> OnExit { get; set; }
@@ -21,23 +32,60 @@
 
         public virtual void Initialize(IStateMachine<TStates> stateMachine)
         {
-            this.stateMachine = stateMachine;
-            AutoTransitions?.Initialize(stateMachine);
+            this.StateMachine = stateMachine;
+            TransitionsBase?.Initialize(stateMachine);
         }
 
         public virtual void DoEnter()
-            => OnEnter?.Invoke(stateMachine);
+            => OnEnter?.Invoke(StateMachine);
         public virtual void DoExit()
-            => OnExit?.Invoke(stateMachine);
+            => OnExit?.Invoke(StateMachine);
         public virtual void DoUpdate()
-            => OnUpdate?.Invoke(stateMachine);
+            => OnUpdate?.Invoke(StateMachine);
         public virtual void DoFixedUpdate()
-            => OnFixedUpdate?.Invoke(stateMachine);
+            => OnFixedUpdate?.Invoke(StateMachine);
         public virtual void DoLateUpdate()
-            => OnLateUpdate?.Invoke(stateMachine);
+            => OnLateUpdate?.Invoke(StateMachine);
 
-        /// <inheritdoc cref="KDMagical.SUSMachine.AutoTransitions{TStates}.CheckTransitions(IStateMachine{TStates}, TransitionType)" />
+        /// <inheritdoc cref="KDMagical.SUSMachine.Transitions{TStates}.CheckTransitions(IStateMachine{TStates}, TransitionType)" />
         public virtual TStates? CheckAutoTransitions(TransitionType transitionType)
-            => AutoTransitions?.CheckTransitions(transitionType);
+            => TransitionsBase?.CheckTransitions(transitionType);
+    }
+
+    /// <summary>
+    /// Contains the Action delegates and AutoTransitions of a particular state.
+    /// </summary>
+    /// <typeparam name="TStates"></typeparam>
+    public class StateBehaviour<TStates> : StateBehaviourBase<TStates>
+        where TStates : struct, System.Enum
+    {
+        private Transitions<TStates> transitions;
+        public Transitions<TStates> Transitions =>
+            transitions ??= new Transitions<TStates>();
+
+        protected override Transitions<TStates> TransitionsBase => Transitions;
+    }
+
+    public class StateBehaviour<TStates, TEvents> : StateBehaviourBase<TStates>
+        where TStates : struct, System.Enum
+        where TEvents : struct, System.Enum
+    {
+        private Transitions<TStates, TEvents> transitions;
+        public Transitions<TStates, TEvents> Transitions =>
+            transitions ??= new Transitions<TStates, TEvents>();
+
+        protected override Transitions<TStates> TransitionsBase => Transitions;
+
+        private Dictionary<TEvents, StateAction<TStates>> onEvents;
+        public Dictionary<TEvents, StateAction<TStates>> OnEvents =>
+            onEvents ??= new Dictionary<TEvents, StateAction<TStates>>();
+
+        public TStates? TriggerEvent(TEvents fsmEvent)
+        {
+            if (OnEvents != null && OnEvents.TryGetValue(fsmEvent, out var action))
+                action(StateMachine);
+
+            return Transitions.CheckEventTransitions(fsmEvent);
+        }
     }
 }

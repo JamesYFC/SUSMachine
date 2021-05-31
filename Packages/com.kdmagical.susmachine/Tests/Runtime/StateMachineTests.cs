@@ -5,7 +5,7 @@ namespace KDMagical.SUSMachine.Tests
 {
     public partial class SUSMachineTests
     {
-        internal class StateMachineTests
+        internal class StateMachineTests<T>
         {
             [Test, AutoMoqData]
             public void Initialized_And_Enter_Called(
@@ -76,9 +76,7 @@ namespace KDMagical.SUSMachine.Tests
             }
 
             [Test, AutoMoqData]
-            public void Tick_Actions_Called(
-                IStateMachineManager manager,
-                States state)
+            public void Tick_Actions_Called(IStateMachineManager manager, States state)
             {
                 var behaviourMock = new Mock<StateBehaviour<States>>();
 
