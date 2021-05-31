@@ -35,7 +35,7 @@ public class MovementController : MonoBehaviour
                 OnFixedUpdate = _ =>
                     rb.MovePosition(
                         rb.position +
-                        inputVecNorm * speed * Time.fixedDeltaTime
+                        inputVecNorm* speed * Time.fixedDeltaTime
                     ),
 
                 OnEvents = {
@@ -43,21 +43,22 @@ public class MovementController : MonoBehaviour
                 },
 
                 Transitions = {
-                    {_ => Input.GetAxisRaw("Jump") > 0, MovementStates.Dodging},
+    { _ => Input.GetAxisRaw("Jump") > 0, MovementStates.Dodging},
                     // complex new
-                    {_ => MovementStates.Normal}
-                }
+                    { _ => MovementStates.Normal}
+}
             },
 
             [MovementStates.Dodging] =
             {
-                OnEnter = _ => dodgeData = (
-                    inputVecNorm,
-                    rb.position,
-                    rb.position + inputVecNorm * dodgeDistance
-                ),
+    OnEnter = _ => dodgeData = (
+        inputVecNorm,
+        rb.position,
+        rb.position + inputVecNorm * dodgeDistance
+    ),
 
-                OnFixedUpdate = fsm => {
+                OnFixedUpdate = fsm =>
+                {
                     if (dodgeData == null)
                     {
                         Debug.LogError("dodge data is null for some reason");
@@ -73,9 +74,9 @@ public class MovementController : MonoBehaviour
                 OnExit = _ => dodgeData = null,
 
                 Transitions = {
-                    { fsm => fsm.TimeInState >= dodgeTime, MovementStates.Normal}
-                }
-            }
+        { fsm => fsm.TimeInState >= dodgeTime, MovementStates.Normal}
+    }
+}
         };
 
         stateMachine.Initialize(MovementStates.Normal);

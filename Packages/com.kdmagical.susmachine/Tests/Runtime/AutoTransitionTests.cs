@@ -196,7 +196,7 @@ namespace KDMagical.SUSMachine.Tests
             [Test]
             [InlineAutoMoqData(Events.Event1, 1, States.State1)]
             [InlineAutoMoqData(Events.Event1, 2, States.State2)]
-            [InlineAutoMoqData(Events.Event1, 3, States.State3)]
+            [InlineAutoMoqData(Events.Event1, 100, States.State3)]
             [InlineAutoMoqData(Events.Event1, 0, null)]
             [InlineAutoMoqData(Events.Event2, 1, null)]
             [InlineAutoMoqData(Events.Event2, 0, null)]
@@ -211,7 +211,7 @@ namespace KDMagical.SUSMachine.Tests
                     {
                         1 => States.State1,
                         2 => States.State2,
-                        3 => States.State3,
+                        var x when x >= 3 => States.State3,
                         _ => null
                     },
                     Events.Event1

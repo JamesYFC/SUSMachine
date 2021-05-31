@@ -6,6 +6,12 @@ namespace KDMagical.SUSMachine
     {
         void Initialize(IStateMachine<T> stateMachine);
 
+        StateAction<T> OnEnter { get; }
+        StateAction<T> OnExit { get; }
+        StateAction<T> OnUpdate { get; }
+        StateAction<T> OnFixedUpdate { get; }
+        StateAction<T> OnLateUpdate { get; }
+
         void DoEnter();
         void DoExit();
         void DoUpdate();
@@ -13,6 +19,7 @@ namespace KDMagical.SUSMachine
         void DoLateUpdate();
 
         T? CheckAutoTransitions(TransitionType transitionType);
+        bool HasUpdateFunctions();
     }
 
     public delegate void StateAction<T>(IStateMachine<T> stateMachine) where T : struct, System.Enum;
@@ -50,6 +57,23 @@ namespace KDMagical.SUSMachine
         /// <inheritdoc cref="KDMagical.SUSMachine.Transitions{TStates}.CheckTransitions(IStateMachine{TStates}, TransitionType)" />
         public virtual TStates? CheckAutoTransitions(TransitionType transitionType)
             => TransitionsBase?.CheckTransitions(transitionType);
+
+        public bool HasUpdateFunctions()
+        {
+            if ((
+                    OnUpdate ??
+                    OnFixedUpdate ??
+                    OnLateUpdate
+                ) != null)
+            {
+                return true;
+            }
+
+            if (TransitionsBase != null && TransitionsBase.HasUpdateFunctions())
+                return true;
+
+            return false;
+        }
     }
 
     /// <summary>

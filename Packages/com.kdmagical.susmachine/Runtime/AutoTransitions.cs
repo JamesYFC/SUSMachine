@@ -64,6 +64,21 @@ namespace KDMagical.SUSMachine
             return null;
         }
 
+        public bool HasUpdateFunctions()
+        {
+            if (updateTransitions != null && updateTransitions.Count > 0)
+            {
+                foreach (var transitions in updateTransitions.Values)
+                {
+                    if (transitions != null && transitions.Count > 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         IEnumerator IEnumerable.GetEnumerator() => throw new System.NotImplementedException();
         IEnumerator<AutoTransition<TStates>> IEnumerable<AutoTransition<TStates>>.GetEnumerator() => throw new System.NotImplementedException();
     }
@@ -90,7 +105,7 @@ namespace KDMagical.SUSMachine
                         : (TStates?)null
                 );
 
-        // super simple case
+        // super simple (direct) case
         public void Add(TStates state, TEvents fsmEvent) =>
             (eventTransitions ??= new Dictionary<TEvents, List<AutoTransition<TStates>>>())
                 .GetOrCreate(fsmEvent)

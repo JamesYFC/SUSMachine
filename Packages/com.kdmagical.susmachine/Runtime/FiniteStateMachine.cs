@@ -34,6 +34,7 @@ namespace KDMagical.SUSMachine
 
         protected IStateMachineManager stateMachineManager { get; private set; }
 
+        protected bool HasUpdateFunctions { get; private set; }
 
         public StateMachineBase() : this(StateMachineManager.Instance) { }
 
@@ -49,15 +50,33 @@ namespace KDMagical.SUSMachine
                 behaviour.Initialize(this);
             }
 
-            stateMachineManager.Register(this);
+            HasUpdateFunctions = CheckForUpdateFunctions();
+            if (HasUpdateFunctions)
+                stateMachineManager.Register(this);
+
             CurrentState = initialState;
             currentStateEnterTime = Time.time;
             CurrentStateBehaviourBase.DoEnter();
         }
 
+        /// <summary>
+        /// Returns false if no update loop actions or transitions are set on any behaviours in this state machine.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual bool CheckForUpdateFunctions()
+        {
+            foreach (var behaviour in StateBehaviours)
+            {
+                if (behaviour.HasUpdateFunctions())
+                    return true;
+            }
+            return false;
+        }
+
         public void Close()
         {
-            stateMachineManager.Deregister(this);
+            if (HasUpdateFunctions)
+                stateMachineManager.Deregister(this);
         }
 
         public void DoUpdate()
