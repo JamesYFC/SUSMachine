@@ -284,9 +284,7 @@ If the return value of `GetJumpHeight()` rises above the limit before, or in the
 
 ### Manual
 
-There are many cases where making checks in one of the update methods may be inconvenient or costly.
-
-There is a manual `SetState` method for the cases where automatic transitions aren't worth it.
+There is a manual `SetState` method for any cases that event support and update checks don't cover.
 
 ```cs
 UnityEvent someEvent;
