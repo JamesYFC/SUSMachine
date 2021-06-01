@@ -1,11 +1,5 @@
 {
   "dependencies": {
-    "com.kdmagic.susmachine": {
-      "version": "file:com.kdmagical.susmachine",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
     "com.unity.collab-proxy": {
       "version": "1.5.7",
       "depth": 0,
