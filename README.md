@@ -1,10 +1,6 @@
 # SUSMachine - a Simple Unity State Machine
 
-A state machine implementation with two goals in mind:
-
-- Quick, easy and nice to use API - no reflection or string names, no need to make a million subclasses
-
-- Describe a lot of behaviour and transitions without writing much code
+A state machine implementation with a quick, easy and nice to use API - no reflection or string names, no need to make a million subclasses.
 
 ## A Quick Glance
 
