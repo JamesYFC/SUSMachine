@@ -62,7 +62,7 @@ void OnDestroy()
 
 In the unity package manager window, click `add package from git URL...` and paste the following:
 
-`https://github.com/JamesYFC/SUSMachine.git?path=/Packages/com.kdmagical.susmachine`
+`https://github.com/JamesYFC/SUSMachine.git?path=/Packages/com.kdmagical.susmachine/Runtime`
 
 Now just import the namespace and you're good to go.
 
