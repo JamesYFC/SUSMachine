@@ -110,7 +110,7 @@ var fsm = new StateMachine<States, Events>
 
 ### Automatic
 
-Automatic transitions are functions that run on a specified update loop (`Update`, `FixedUpdate` or `LateUpdate`) before any behaviour actions trigger, checking for if the state machine should automatically switch to another state.
+Automatic transitions are functions that run on a specified update loop (`Update`, `FixedUpdate` or `LateUpdate`) after behaviour actions trigger, checking for if the state machine should automatically switch to another state.
 
 You can setup as many automatic transitions as you want on a specific state behaviour.
 
