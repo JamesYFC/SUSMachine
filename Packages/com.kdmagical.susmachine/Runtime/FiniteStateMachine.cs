@@ -81,20 +81,20 @@ namespace KDMagical.SUSMachine
 
         public void DoUpdate()
         {
-            CheckForAutoTransitions(TransitionType.Update);
             CurrentStateBehaviourBase.DoUpdate();
+            CheckForAutoTransitions(TransitionType.Update);
         }
 
         public void DoFixedUpdate()
         {
-            CheckForAutoTransitions(TransitionType.FixedUpdate);
             CurrentStateBehaviourBase.DoFixedUpdate();
+            CheckForAutoTransitions(TransitionType.FixedUpdate);
         }
 
         public void DoLateUpdate()
         {
-            CheckForAutoTransitions(TransitionType.LateUpdate);
             CurrentStateBehaviourBase.DoLateUpdate();
+            CheckForAutoTransitions(TransitionType.LateUpdate);
         }
 
         private void CheckForAutoTransitions(TransitionType transitionMode)
