@@ -132,6 +132,15 @@ namespace KDMagical.SUSMachine
                 SetState(transitionResult.Value);
         }
 
+        /// <summary>
+        /// <para>Sets the current state of the state machine to <paramref name="newState"/>.</para>
+        /// 
+        /// <para>Avoid using this method in any StateBehaviour action, and <b>**DO NOT call this in a StateBehaviour's OnEnter() or OnExit()!**</b></para>
+        /// </summary>
+        /// <remarks>
+        /// It is recommended to use the built-in events and transitions support over this function for most use cases.
+        /// </remarks>
+        /// <param name="newState"></param>
         public void SetState(T newState)
         {
             DoExit();

@@ -309,6 +309,31 @@ namespace KDMagical.SUSMachine.Tests
                 sut.Close();
                 managerMock.Verify(m => m.Deregister(sut), Times.Once);
             }
+
+            [Test, AutoMoqData]
+            public void SetState_In_Actions_Causes_StackOverflow(IStateMachineManager manager)
+            {
+                const string Message = "SetState is being called ad infinitum!";
+                int count = 0;
+
+                var sut = new StateMachine<States>(manager)
+                {
+                    AnyState =
+                    {
+                        OnEnter = fsm =>
+                        {
+                            fsm.SetState(States.State2);
+                            count++;
+                            if (count > 10000)
+                            {
+                                throw new System.StackOverflowException(Message);
+                            }
+                        }
+                    }
+                };
+
+                Assert.Throws<System.StackOverflowException>(() => sut.Initialize(States.State1), Message);
+            }
         }
     }
 }

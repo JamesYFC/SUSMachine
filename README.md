@@ -312,17 +312,9 @@ If the return value of `GetJumpHeight()` rises above the limit before, or in the
 
 ### Manual
 
-There is a manual `SetState` method for any cases that event support and update checks don't cover.
+The built-in event and transitions support should cover practically all use cases, but a manual `SetState` method is provided just in case you need it.
 
 ```cs
-UnityEvent someEvent;
-bool someCondition;
-
-void Awake()
-{
-    someEvent.AddListener(StateCheck);
-}
-
 void StateCheck()
 {
     if (someCondition)
@@ -330,6 +322,20 @@ void StateCheck()
         stateMachine.SetState(States.State1);
     }
 }
+```
+
+This method should **not** be called within state callback actions, as it can cause confusing results or even a stack overflow!
+
+```cs
+var fsm = new StateMachine<States>
+{
+    AnyState =
+    {
+        OnEnter = fsm => fsm.SetState(States.State2)
+    }
+}
+
+fsm.Initialize(States.State1); // stack overflow! AnyState.OnEnter called infinitely!
 ```
 
 ## Splitting Out
