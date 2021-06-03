@@ -13,9 +13,12 @@ public class Test : MonoBehaviour
     {
         stateMachine = new StateMachine<States>
         {
+            AnyState = {
+                OnEnter = fsm => Debug.Log("entering " + fsm.CurrentState)
+            },
+
             [States.Idle] =
             {
-                OnEnter = _ => Debug.Log("entering idle"),
                 OnUpdate = fsm => Debug.Log("time since idle: " + fsm.TimeInState),
                 OnExit = SomeFunc,
 
@@ -30,7 +33,6 @@ public class Test : MonoBehaviour
 
             [States.Jumping] =
             {
-                OnEnter = _ => Debug.Log("entering jumping"),
                 OnExit = _ => Debug.Log("exiting jumping"),
 
                 Transitions =
