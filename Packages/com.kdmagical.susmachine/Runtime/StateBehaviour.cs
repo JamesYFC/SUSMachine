@@ -104,7 +104,7 @@ namespace KDMagical.SUSMachine
         public Dictionary<TEvents, StateAction<TStates>> OnEvents =>
             onEvents ??= new Dictionary<TEvents, StateAction<TStates>>();
 
-        public TStates? TriggerEvent(TEvents fsmEvent)
+        public virtual TStates? TriggerEvent(TEvents fsmEvent)
         {
             if (OnEvents != null && OnEvents.TryGetValue(fsmEvent, out var action))
                 action(StateMachine);

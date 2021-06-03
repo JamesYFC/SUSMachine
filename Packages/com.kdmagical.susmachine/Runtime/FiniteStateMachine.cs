@@ -28,6 +28,7 @@ namespace KDMagical.SUSMachine
 
         protected abstract IEnumerable<IStateBehaviour<T>> StateBehaviours { get; }
         protected abstract IStateBehaviour<T> CurrentStateBehaviourBase { get; }
+        protected abstract IStateBehaviour<T> AnyStateBase { get; }
 
         protected float currentStateEnterTime;
         public float TimeInState => Time.time - currentStateEnterTime;
@@ -45,6 +46,7 @@ namespace KDMagical.SUSMachine
 
         public void Initialize(T initialState)
         {
+            AnyStateBase?.Initialize(this);
             foreach (var behaviour in StateBehaviours)
             {
                 behaviour.Initialize(this);
@@ -56,7 +58,7 @@ namespace KDMagical.SUSMachine
 
             CurrentState = initialState;
             currentStateEnterTime = Time.time;
-            CurrentStateBehaviourBase.DoEnter();
+            DoEnter();
         }
 
         /// <summary>
@@ -65,6 +67,9 @@ namespace KDMagical.SUSMachine
         /// <returns></returns>
         protected virtual bool CheckForUpdateFunctions()
         {
+            if (AnyStateBase != null && AnyStateBase.HasUpdateFunctions())
+                return true;
+
             foreach (var behaviour in StateBehaviours)
             {
                 if (behaviour.HasUpdateFunctions())
@@ -75,24 +80,40 @@ namespace KDMagical.SUSMachine
 
         public void Close()
         {
+            DoExit();
             if (HasUpdateFunctions)
                 stateMachineManager.Deregister(this);
         }
 
+        protected void DoEnter()
+        {
+            AnyStateBase?.DoEnter();
+            CurrentStateBehaviourBase.DoEnter();
+        }
+
+        protected void DoExit()
+        {
+            AnyStateBase?.DoExit();
+            CurrentStateBehaviourBase.DoExit();
+        }
+
         public void DoUpdate()
         {
+            AnyStateBase?.DoUpdate();
             CurrentStateBehaviourBase.DoUpdate();
             CheckForAutoTransitions(TransitionType.Update);
         }
 
         public void DoFixedUpdate()
         {
+            AnyStateBase?.DoFixedUpdate();
             CurrentStateBehaviourBase.DoFixedUpdate();
             CheckForAutoTransitions(TransitionType.FixedUpdate);
         }
 
         public void DoLateUpdate()
         {
+            AnyStateBase?.DoLateUpdate();
             CurrentStateBehaviourBase.DoLateUpdate();
             CheckForAutoTransitions(TransitionType.LateUpdate);
         }
@@ -101,15 +122,22 @@ namespace KDMagical.SUSMachine
         {
             var transitionResult = CurrentStateBehaviourBase.CheckAutoTransitions(transitionMode);
             if (transitionResult != null)
+            {
+                SetState(transitionResult.Value);
+                return;
+            }
+
+            transitionResult = AnyStateBase?.CheckAutoTransitions(transitionMode);
+            if (transitionResult != null)
                 SetState(transitionResult.Value);
         }
 
         public void SetState(T newState)
         {
-            CurrentStateBehaviourBase.DoExit();
+            DoExit();
             CurrentState = newState;
             currentStateEnterTime = Time.time;
-            CurrentStateBehaviourBase.DoEnter();
+            DoEnter();
         }
     }
 
@@ -126,6 +154,15 @@ namespace KDMagical.SUSMachine
 
         public StateBehaviour<T> CurrentStateBehaviour => this[CurrentState];
         protected override IStateBehaviour<T> CurrentStateBehaviourBase => CurrentStateBehaviour;
+
+        private StateBehaviour<T> anyState;
+        protected override IStateBehaviour<T> AnyStateBase => anyState;
+
+        public StateBehaviour<T> AnyState
+        {
+            get => anyState ??= new StateBehaviour<T>();
+            set => anyState = value;
+        }
 
         public StateMachine() : base() { }
 
@@ -150,6 +187,15 @@ namespace KDMagical.SUSMachine
         public StateBehaviour<TStates, TEvents> CurrentStateBehaviour => this[CurrentState];
         protected override IStateBehaviour<TStates> CurrentStateBehaviourBase => CurrentStateBehaviour;
 
+        private StateBehaviour<TStates, TEvents> anyState;
+        protected override IStateBehaviour<TStates> AnyStateBase => anyState;
+
+        public StateBehaviour<TStates, TEvents> AnyState
+        {
+            get => anyState ??= new StateBehaviour<TStates, TEvents>();
+            set => anyState = value;
+        }
+
         public StateMachine() : base() { }
 
         public StateMachine(IStateMachineManager stateMachineManager) : base(stateMachineManager) { }
@@ -157,6 +203,13 @@ namespace KDMagical.SUSMachine
         public void TriggerEvent(TEvents fsmEvent)
         {
             var nextState = CurrentStateBehaviour.TriggerEvent(fsmEvent);
+            if (nextState != null)
+            {
+                SetState(nextState.Value);
+                return;
+            }
+
+            nextState = anyState.TriggerEvent(fsmEvent);
             if (nextState != null)
                 SetState(nextState.Value);
         }
