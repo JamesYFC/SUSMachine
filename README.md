@@ -90,7 +90,7 @@ The available actions are:
 - `OnLateUpdate`
 - `OnEvents` (when events are enabled)
 
-A StateMachine can contain a state behaviour for each member of the states enum, plus `AnyState`, whose actions and transitions are called before any specific state.
+A StateMachine can contain a state behaviour for each member of the states enum, plus `AnyState`, whose actions are called before any specific state. AnyState's transitions take lower priority than a specific state behaviour's transitions.
 
 ```cs
 var fsm = new StateMachine<States>
