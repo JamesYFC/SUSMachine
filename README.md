@@ -8,17 +8,22 @@ A state machine implementation with a quick, easy and nice to use API - no refle
 enum States { Normal, Blocking }
 enum Events { Attacked }
 
+[SerializedField]
+float blockTime;
+
 private void Awake()
 {
     var fsm = new StateMachine<States, Events>
     {
+        AnyState =
+        {
+            OnEnter = fsm => Debug.Log("Entering state " + fsm.CurrentState),
+            OnExit = fsm => Debug.Log("Exiting state " + fsm.CurrentState)
+        },
+
         [States.Normal] =
         {
-            OnEnter = _ => Debug.Log("Return to idle"),
-
             OnUpdate = fsm => Debug.Log("Time idling: " + fsm.TimeInState),
-
-            OnExit = _ => Debug.Log("Exiting idle"),
 
             OnEvents = {
                 [Events.Attacked] = _ => health--
@@ -84,6 +89,33 @@ The available actions are:
 - `OnFixedUpdate`
 - `OnLateUpdate`
 - `OnEvents` (when events are enabled)
+
+A StateMachine can contain a state behaviour for each member of the states enum, plus `AnyState`, whose actions and transitions are called before any specific state.
+
+```cs
+var fsm = new StateMachine<States>
+{
+    AnyState =
+    {
+        //...
+    },
+
+    [States.State1] =
+    {
+        // ...
+    },
+
+    [States.State2] =
+    {
+        // ...
+    },
+
+    [States.State3] =
+    {
+        // ...
+    },
+}
+```
 
 ## Events
 
