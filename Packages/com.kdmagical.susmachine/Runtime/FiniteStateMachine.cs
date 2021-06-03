@@ -218,7 +218,7 @@ namespace KDMagical.SUSMachine
                 return;
             }
 
-            nextState = anyState.TriggerEvent(fsmEvent);
+            nextState = anyState?.TriggerEvent(fsmEvent);
             if (nextState != null)
                 SetState(nextState.Value);
         }
