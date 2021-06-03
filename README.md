@@ -8,7 +8,7 @@ A state machine implementation with a quick, easy and nice to use API - no refle
 enum States { Normal, Blocking }
 enum Events { Attacked }
 
-[SerializedField]
+[SerializeField]
 float blockTime;
 
 private void Awake()
