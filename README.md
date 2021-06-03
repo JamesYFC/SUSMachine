@@ -9,7 +9,7 @@ enum States { Normal, Blocking }
 enum Events { Attacked }
 
 [SerializeField]
-float blockTime;
+float blockTime = 2;
 
 private void Awake()
 {
