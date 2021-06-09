@@ -2,6 +2,8 @@
 
 A state machine implementation with a quick, easy and nice to use API - no reflection or string names, no need to make a million subclasses.
 
+Supports Unity 2020.2 and up.
+
 ## A Quick Glance
 
 ```cs
@@ -64,8 +66,16 @@ In the unity package manager window, click `add package from git URL...` and pas
 Now just import the namespace and you're good to go.
 
 ```cs
-using KDMagical.SUSMachine
+using KDMagical.SUSMachine;
 ```
+
+## Updating
+
+Unity currently doesn't support updating upm packages from git sources as of 2020.3 (i.e. you will not be notified by version updates, and the update button will not be available.) 
+
+However, you can simply reinstall the package by following the installation step above again.
+
+The existing version of this package should be overwritten by the new version.
 
 # State Behaviours
 
@@ -315,7 +325,7 @@ void StateCheck()
 }
 ```
 
-This method should **not** be called within state callback actions, as it can cause confusing results or even a stack overflow!
+This method should **not** be called within the same state machine's state callback actions, as it can cause confusing results or even a stack overflow!
 
 ```cs
 var fsm = new StateMachine<States>
