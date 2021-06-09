@@ -25,9 +25,7 @@ private void Awake()
         {
             OnUpdate = fsm => Debug.Log("Time idling: " + fsm.TimeInState),
 
-            OnEvents = {
-                [Events.Attacked] = _ => health--
-            },
+            [Events.Attacked] = _ => health--,
 
             Transitions = {
                 // in this state, check in update for space press. enter blocking state if true
@@ -37,9 +35,7 @@ private void Awake()
 
         [States.Blocking] =
         {
-            OnEvents = {
-                [Events.Attacked] = _ => Debug.Log("Attack blocked")
-            },
+            [Events.Attacked] = _ => Debug.Log("Attack blocked"),
 
             Transitions = {
                 {fsm => fsm.TimeInState >= blockTime, States.Normal}
@@ -84,7 +80,7 @@ The available actions are:
 - `OnUpdate`
 - `OnFixedUpdate`
 - `OnLateUpdate`
-- `OnEvents` (when events are enabled)
+- `[EventEnum.EventName]` (when events are enabled)
 
 A StateMachine can contain a state behaviour for each member of the states enum, plus `AnyState`, whose actions are called before any specific state. AnyState's transitions take lower priority than a specific state behaviour's transitions.
 
@@ -126,10 +122,9 @@ var fsm = new StateMachine<States> { }
 // with events
 var fsm = new StateMachine<States, Events>
 {
-    [States.State1] = {
-        OnEvents = {
-            [Events.Event1] = _ => Debug.Log("Event1 Triggered!")
-        }
+    [States.State1] =
+    {
+        [Events.Event1] = _ => Debug.Log("Event1 Triggered!")
     }
 }
 ```

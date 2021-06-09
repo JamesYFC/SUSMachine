@@ -97,16 +97,20 @@ namespace KDMagical.SUSMachine
         private Transitions<TStates, TEvents> transitions;
         public Transitions<TStates, TEvents> Transitions =>
             transitions ??= new Transitions<TStates, TEvents>();
-
         protected override Transitions<TStates> TransitionsBase => Transitions;
 
         private Dictionary<TEvents, StateAction<TStates>> onEvents;
-        public Dictionary<TEvents, StateAction<TStates>> OnEvents =>
-            onEvents ??= new Dictionary<TEvents, StateAction<TStates>>();
+
+        public StateAction<TStates> this[TEvents fsmEvent]
+        {
+            set =>
+                (onEvents ??= new Dictionary<TEvents, StateAction<TStates>>())
+                    .Add(fsmEvent, value);
+        }
 
         public virtual TStates? TriggerEvent(TEvents fsmEvent)
         {
-            if (OnEvents != null && OnEvents.TryGetValue(fsmEvent, out var action))
+            if (onEvents != null && onEvents.TryGetValue(fsmEvent, out var action))
                 action(StateMachine);
 
             return Transitions.CheckEventTransitions(fsmEvent);

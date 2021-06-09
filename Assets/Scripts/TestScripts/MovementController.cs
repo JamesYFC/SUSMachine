@@ -38,24 +38,22 @@ public class MovementController : MonoBehaviour
                         inputVecNorm* speed * Time.fixedDeltaTime
                     ),
 
-                OnEvents = {
-                    [MovementEvents.Knockdown] = _ => Debug.Log("knocked down")
-                },
+                [MovementEvents.Knockdown] = _ => Debug.Log("knocked down"),
 
                 Transitions = {
-    { _ => Input.GetAxisRaw("Jump") > 0, MovementStates.Dodging},
+                    { _ => Input.GetAxisRaw("Jump") > 0, MovementStates.Dodging},
                     // complex new
                     { _ => MovementStates.Normal}
-}
+                }
             },
 
             [MovementStates.Dodging] =
             {
-    OnEnter = _ => dodgeData = (
-        inputVecNorm,
-        rb.position,
-        rb.position + inputVecNorm * dodgeDistance
-    ),
+                OnEnter = _ => dodgeData = (
+                    inputVecNorm,
+                    rb.position,
+                    rb.position + inputVecNorm * dodgeDistance
+                ),
 
                 OnFixedUpdate = fsm =>
                 {
@@ -74,9 +72,9 @@ public class MovementController : MonoBehaviour
                 OnExit = _ => dodgeData = null,
 
                 Transitions = {
-        { fsm => fsm.TimeInState >= dodgeTime, MovementStates.Normal}
-    }
-}
+                    { fsm => fsm.TimeInState >= dodgeTime, MovementStates.Normal}
+                }
+            }
         };
 
         stateMachine.Initialize(MovementStates.Normal);

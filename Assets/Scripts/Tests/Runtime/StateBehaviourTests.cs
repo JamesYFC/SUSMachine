@@ -79,11 +79,9 @@ namespace KDMagical.SUSMachine.Tests
                     OnFixedUpdate = fixedUpdate.Object,
                     OnLateUpdate = lateUpdate.Object,
 
-                    OnEvents = {
-                        [Events.Event1] = event1.Object,
-                        [Events.Event2] = event2.Object,
-                        [Events.Event3] = event3.Object
-                    }
+                    [Events.Event1] = event1.Object,
+                    [Events.Event2] = event2.Object,
+                    [Events.Event3] = event3.Object
                 };
 
                 sut.Initialize(stateMachine);
