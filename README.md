@@ -2,6 +2,8 @@
 
 A state machine implementation with a quick, easy and nice to use API - no reflection or string names, no need to make a million subclasses.
 
+Supports Unity 2020.2 and up.
+
 ## A Quick Glance
 
 ```cs
