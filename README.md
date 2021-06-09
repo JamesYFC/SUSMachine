@@ -68,7 +68,7 @@ In the unity package manager window, click `add package from git URL...` and pas
 Now just import the namespace and you're good to go.
 
 ```cs
-using KDMagical.SUSMachine
+using KDMagical.SUSMachine;
 ```
 
 # State Behaviours
