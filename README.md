@@ -330,7 +330,7 @@ void StateCheck()
 }
 ```
 
-This method should **not** be called within state callback actions, as it can cause confusing results or even a stack overflow!
+This method should **not** be called within the same state machine's state callback actions, as it can cause confusing results or even a stack overflow!
 
 ```cs
 var fsm = new StateMachine<States>
