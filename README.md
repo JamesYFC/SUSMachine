@@ -73,6 +73,12 @@ Now just import the namespace and you're good to go.
 using KDMagical.SUSMachine;
 ```
 
+## Updating
+
+Unity currently doesn't support updating upm packages from git sources (as of 2020.3). 
+
+Therefore, you will need to reinstall the package by removing it and installing again by following the steps above.
+
 # State Behaviours
 
 A state behaviour contains all the actions to call when certain events happen, as well as the transitions.
