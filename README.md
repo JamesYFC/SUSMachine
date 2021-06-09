@@ -75,9 +75,11 @@ using KDMagical.SUSMachine;
 
 ## Updating
 
-Unity currently doesn't support updating upm packages from git sources (as of 2020.3). 
+Unity currently doesn't support updating upm packages from git sources as of 2020.3 (i.e. you will not be notified by version updates, and the update button will not be available.) 
 
-Therefore, you will need to reinstall the package by removing it and installing again by following the steps above.
+However, you can simply reinstall the package by following the installation step above again.
+
+The existing version of this package should be overwritten by the new version.
 
 # State Behaviours
 
