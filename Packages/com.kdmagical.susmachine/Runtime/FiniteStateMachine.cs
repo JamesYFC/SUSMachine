@@ -10,15 +10,14 @@ namespace KDMagical.SUSMachine
         void DoUpdate();
         void DoFixedUpdate();
         void DoLateUpdate();
+
+        void Close();
     }
 
     public interface IStateMachine<T> : IStateMachine where T : struct, System.Enum
     {
         T CurrentState { get; }
-
-        void Initialize(T initialState);
-        void Close();
-
+        void Initialize(T initialState, GameObject closeOnDestroy = null);
         void SetState(T newState);
     }
 
@@ -44,17 +43,30 @@ namespace KDMagical.SUSMachine
             this.stateMachineManager = stateMachineManager;
         }
 
-        public void Initialize(T initialState)
+        /// <summary>
+        /// Initializes this state machine and Close() automatically when <paramref name="closeOnDestroy"/> is destroyed.
+        /// </summary>
+        /// <param name="initialState"></param>
+        /// <param name="closeOnDestroy"></param>
+        public void Initialize(T initialState, GameObject closeOnDestroy = null)
         {
+            HasUpdateFunctions = CheckForUpdateFunctions();
+            if (HasUpdateFunctions)
+            {
+                stateMachineManager.Register(this);
+
+                if (closeOnDestroy != null)
+                {
+                    var autoCloser = closeOnDestroy.AddComponent<StateMachineAutoCloser>();
+                    autoCloser.Initialize(this);
+                }
+            }
+
             AnyStateBase?.Initialize(this);
             foreach (var behaviour in StateBehaviours)
             {
                 behaviour.Initialize(this);
             }
-
-            HasUpdateFunctions = CheckForUpdateFunctions();
-            if (HasUpdateFunctions)
-                stateMachineManager.Register(this);
 
             CurrentState = initialState;
             currentStateEnterTime = Time.time;

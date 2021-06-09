@@ -47,19 +47,15 @@ private void Awake()
         }
     };
 
-    // Initialize can be called at any time when you're ready -- not just in Awake()
-    stateMachine.Initialize(States.Idle);
+    /// Initialize can be called at any time when you're ready -- not just in Awake().
+    /// By supplying this gameObject into the second parameter,
+    /// the state machine will autmatically Close() when the gameObject is destroyed.
+    stateMachine.Initialize(States.Idle, this.gameObject);
 }
 
 void OnCollisionEnter(Collision collision)
 {
     stateMachine.TriggerEvent(Events.Attacked);
-}
-
-void OnDestroy()
-{
-    // Call this when you are done with the state machine -- often this means in OnDestroy()
-    stateMachine.Close();
 }
 ```
 
@@ -352,4 +348,25 @@ void SomeFunc(IStateMachine<States> stateMachine)
 {
     // ...
 }
+```
+
+# Manual Initialization & Closing
+
+State machines need to call `Close()` when their use is finished.
+
+This is done for you if when you specify the second parameter in `Initialize()`.
+
+A `MonoBehaviour` will be created that calls `Close()` on the state machine when the specified `GameObject` is destroyed:
+
+```cs
+Initialize(T initialState, GameObject closeOnDestroy)
+```
+
+However, you may omit the second parameter if you want to call `Close()` manually.
+
+```cs
+fsm.Initialize(States.State1);
+
+// elsewhere, e.g. in OnDestroy
+fsm.Close();
 ```

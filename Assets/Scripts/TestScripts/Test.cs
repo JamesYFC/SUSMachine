@@ -45,7 +45,7 @@ public class Test : MonoBehaviour
             }
         };
 
-        stateMachine.Initialize(States.Idle);
+        stateMachine.Initialize(States.Idle, gameObject);
     }
 
     private void SomeFunc(IStateMachine<States> stateMachine)

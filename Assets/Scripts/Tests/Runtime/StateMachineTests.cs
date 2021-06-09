@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Moq;
+using UnityEngine;
 
 namespace KDMagical.SUSMachine.Tests
 {
@@ -333,6 +334,46 @@ namespace KDMagical.SUSMachine.Tests
                 };
 
                 Assert.Throws<System.StackOverflowException>(() => sut.Initialize(States.State1), Message);
+            }
+
+            [Test, AutoMoqData]
+            public void Initialize_NoUpdate_No_AutoCloser(IStateMachineManager manager, string gameObjName)
+            {
+                var managerMock = Mock.Get<IStateMachineManager>(manager);
+                var go = new GameObject(gameObjName);
+
+                var sut = new StateMachine<States>(manager);
+
+                sut.Initialize(States.State1, go);
+
+                Assert.IsFalse(go.GetComponent<StateMachineAutoCloser>());
+
+                GameObject.DestroyImmediate(go);
+            }
+
+            [Test, AutoMoqData]
+            public void Initialize_WithUpdate_Creates_Working_AutoCloser(
+                IStateMachineManager manager,
+                string gameObjName,
+                StateAction<States> stateAction)
+            {
+                var managerMock = Mock.Get<IStateMachineManager>(manager);
+                var go = new GameObject(gameObjName);
+
+                var sut = new StateMachine<States>(manager)
+                {
+                    AnyState = {
+                        OnUpdate = stateAction,
+                    }
+                };
+
+                sut.Initialize(States.State1, go);
+
+                Assert.IsTrue(go.GetComponent<StateMachineAutoCloser>());
+
+                GameObject.DestroyImmediate(go);
+
+                managerMock.Verify(m => m.Deregister(sut), Times.Once);
             }
         }
     }
