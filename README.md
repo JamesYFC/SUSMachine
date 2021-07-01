@@ -13,9 +13,11 @@ enum Events { Attacked }
 [SerializeField]
 float blockTime = 2;
 
+StateMachine<States, Events> fsm;
+
 private void Awake()
 {
-    var fsm = new StateMachine<States, Events>
+    fsm = new StateMachine<States, Events>
     {
         AnyState =
         {
