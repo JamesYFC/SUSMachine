@@ -6,12 +6,6 @@ namespace KDMagical.SUSMachine
     {
         void Initialize(IStateMachine<T> stateMachine);
 
-        StateAction<T> OnEnter { get; }
-        StateAction<T> OnExit { get; }
-        StateAction<T> OnUpdate { get; }
-        StateAction<T> OnFixedUpdate { get; }
-        StateAction<T> OnLateUpdate { get; }
-
         void DoEnter();
         void DoExit();
         void DoUpdate();
