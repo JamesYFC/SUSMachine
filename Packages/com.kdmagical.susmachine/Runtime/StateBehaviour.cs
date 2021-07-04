@@ -102,7 +102,7 @@ namespace KDMagical.SUSMachine
                     .Add(fsmEvent, value);
         }
 
-        public virtual TStates? TriggerEvent(TEvents fsmEvent)
+        public virtual TStates? TriggerEventAndGetTransition(TEvents fsmEvent)
         {
             if (onEvents != null && onEvents.TryGetValue(fsmEvent, out var action))
                 action(StateMachine);

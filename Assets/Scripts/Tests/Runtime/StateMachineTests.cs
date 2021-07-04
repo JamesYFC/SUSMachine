@@ -163,8 +163,8 @@ namespace KDMagical.SUSMachine.Tests
 
                 sut.TriggerEvent(fsmEvent);
 
-                anyStateMock.Verify(s => s.TriggerEvent(fsmEvent), Times.Once);
-                behaviourMock.Verify(s => s.TriggerEvent(fsmEvent), Times.Once);
+                anyStateMock.Verify(s => s.TriggerEventAndGetTransition(fsmEvent), Times.Once);
+                behaviourMock.Verify(s => s.TriggerEventAndGetTransition(fsmEvent), Times.Once);
             }
 
             [Test, AutoMoqData]

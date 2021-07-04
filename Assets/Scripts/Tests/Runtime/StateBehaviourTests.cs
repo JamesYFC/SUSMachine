@@ -126,19 +126,19 @@ namespace KDMagical.SUSMachine.Tests
                 fixedUpdate.VerifyNoOtherCalls();
                 lateUpdate.Verify(f => f(stateMachine), Times.Once);
 
-                sut.TriggerEvent(Events.Event1);
+                sut.TriggerEventAndGetTransition(Events.Event1);
 
                 event1.Verify(f => f(stateMachine), Times.Once);
                 event2.VerifyNoOtherCalls();
                 event3.VerifyNoOtherCalls();
 
-                sut.TriggerEvent(Events.Event2);
+                sut.TriggerEventAndGetTransition(Events.Event2);
 
                 event1.VerifyNoOtherCalls();
                 event2.Verify(f => f(stateMachine), Times.Once);
                 event3.VerifyNoOtherCalls();
 
-                sut.TriggerEvent(Events.Event3);
+                sut.TriggerEventAndGetTransition(Events.Event3);
 
                 event1.VerifyNoOtherCalls();
                 event2.VerifyNoOtherCalls();
@@ -161,7 +161,7 @@ namespace KDMagical.SUSMachine.Tests
                     }
                 };
 
-                Assert.AreEqual(sut.TriggerEvent(eventToTrigger), expectedState);
+                Assert.AreEqual(sut.TriggerEventAndGetTransition(eventToTrigger), expectedState);
             }
         }
     }

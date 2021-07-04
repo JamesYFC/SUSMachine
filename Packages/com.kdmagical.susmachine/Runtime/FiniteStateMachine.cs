@@ -21,6 +21,11 @@ namespace KDMagical.SUSMachine
         void SetState(T newState);
     }
 
+    public interface IEventTriggerable<T> where T : struct, System.Enum
+    {
+        void TriggerEvent(T triggeredEvent);
+    }
+
     public abstract class StateMachineBase<T> : IStateMachine<T> where T : struct, System.Enum
     {
         public T CurrentState { get; protected set; }
@@ -190,7 +195,7 @@ namespace KDMagical.SUSMachine
         public StateMachine(IStateMachineManager stateMachineManager) : base(stateMachineManager) { }
     }
 
-    public class StateMachine<TStates, TEvents> : StateMachineBase<TStates>
+    public class StateMachine<TStates, TEvents> : StateMachineBase<TStates>, IEventTriggerable<TEvents>
         where TStates : struct, System.Enum
         where TEvents : struct, System.Enum
     {
@@ -223,14 +228,14 @@ namespace KDMagical.SUSMachine
 
         public void TriggerEvent(TEvents fsmEvent)
         {
-            var nextState = CurrentStateBehaviour.TriggerEvent(fsmEvent);
+            var nextState = CurrentStateBehaviour.TriggerEventAndGetTransition(fsmEvent);
             if (nextState != null)
             {
                 SetState(nextState.Value);
                 return;
             }
 
-            nextState = anyState?.TriggerEvent(fsmEvent);
+            nextState = anyState?.TriggerEventAndGetTransition(fsmEvent);
             if (nextState != null)
                 SetState(nextState.Value);
         }
