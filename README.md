@@ -79,9 +79,9 @@ However, you can simply reinstall the package by following the installation step
 
 The existing version of this package should be overwritten by the new version.
 
-# State Behaviours
+# State Objects
 
-A state behaviour contains all the actions to call when certain events happen, as well as the transitions.
+A state object contains all the actions to call when certain events happen, as well as the transitions.
 
 The state machine is provided as the sole parameter when calling these actions.
 
@@ -94,7 +94,7 @@ The available actions are:
 - `OnLateUpdate`
 - `[EventEnum.EventName]` (when events are enabled)
 
-A StateMachine can contain a state behaviour for each member of the states enum, plus `AnyState`, whose actions are called before any specific state. AnyState's transitions take lower priority than a specific state behaviour's transitions.
+A StateMachine can contain a state object for each member of the states enum, plus `AnyState`, whose actions are called before any specific state. AnyState's transitions take lower priority than a specific state object's transitions.
 
 ```cs
 var fsm = new StateMachine<States>
@@ -123,7 +123,7 @@ var fsm = new StateMachine<States>
 
 ## Events
 
-State behaviours also support events for actions and transitions.
+State objects also support events for actions and transitions.
 
 Simply add another generic parameter to `StateMachine` to enable this support.
 
@@ -147,7 +147,7 @@ var fsm = new StateMachine<States, Events>
 
 Automatic transitions are functions that run on a specified update loop (`Update`, `FixedUpdate` or `LateUpdate`) after behaviour actions trigger, checking for if the state machine should automatically switch to another state.
 
-You can setup as many automatic transitions as you want on a specific state behaviour.
+You can setup as many automatic transitions as you want on a specific state object.
 
 There are two ways to setup automatic transitions:
 
