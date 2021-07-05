@@ -1,6 +1,6 @@
 {
   "name": "com.kdmagic.susmachine",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "displayName": "Simple Unity State Machine",
   "description": "A finite state machine library built for Unity.",
   "unity": "2020.3",
