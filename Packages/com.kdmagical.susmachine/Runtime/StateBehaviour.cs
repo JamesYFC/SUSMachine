@@ -2,7 +2,7 @@
 
 namespace KDMagical.SUSMachine
 {
-    public interface IStateBehaviour<T> where T : struct, System.Enum
+    public interface IStateObject<T> where T : struct, System.Enum
     {
         void Initialize(IStateMachine<T> stateMachine);
 
@@ -18,7 +18,7 @@ namespace KDMagical.SUSMachine
 
     public delegate void StateAction<T>(IStateMachine<T> stateMachine) where T : struct, System.Enum;
 
-    public abstract class StateBehaviourBase<TStates> : IStateBehaviour<TStates>
+    public abstract class StateObjectBase<TStates> : IStateObject<TStates>
         where TStates : struct, System.Enum
     {
         protected IStateMachine<TStates> StateMachine { get; private set; }
@@ -74,7 +74,7 @@ namespace KDMagical.SUSMachine
     /// Contains the Action delegates and AutoTransitions of a particular state.
     /// </summary>
     /// <typeparam name="TStates"></typeparam>
-    public class StateBehaviour<TStates> : StateBehaviourBase<TStates>
+    public class StateObject<TStates> : StateObjectBase<TStates>
         where TStates : struct, System.Enum
     {
         private Transitions<TStates> transitions;
@@ -84,7 +84,7 @@ namespace KDMagical.SUSMachine
         protected override Transitions<TStates> TransitionsBase => Transitions;
     }
 
-    public class StateBehaviour<TStates, TEvents> : StateBehaviourBase<TStates>
+    public class StateObject<TStates, TEvents> : StateObjectBase<TStates>
         where TStates : struct, System.Enum
         where TEvents : struct, System.Enum
     {

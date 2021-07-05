@@ -13,7 +13,7 @@ namespace KDMagical.SUSMachine.Tests
                 var actions = new MockStateActions();
                 var (enter, exit, update, fixedUpdate, lateUpdate) = actions;
 
-                var sut = new StateBehaviour<States>
+                var sut = new StateObject<States>
                 {
                     OnEnter = enter.Object,
                     OnExit = exit.Object,
@@ -71,7 +71,7 @@ namespace KDMagical.SUSMachine.Tests
                 var (enter, exit, update, fixedUpdate, lateUpdate) = new MockStateActions();
                 var (event1, event2, event3) = new MockEventActions();
 
-                var sut = new StateBehaviour<States, Events>
+                var sut = new StateObject<States, Events>
                 {
                     OnEnter = enter.Object,
                     OnExit = exit.Object,
@@ -154,7 +154,7 @@ namespace KDMagical.SUSMachine.Tests
                 IStateMachine<States> stateMachine
             )
             {
-                var sut = new StateBehaviour<States, Events>
+                var sut = new StateObject<States, Events>
                 {
                     Transitions = {
                         {States.State1, Events.Event1}

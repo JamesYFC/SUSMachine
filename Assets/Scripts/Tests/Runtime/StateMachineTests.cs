@@ -13,8 +13,8 @@ namespace KDMagical.SUSMachine.Tests
                 IStateMachineManager manager,
                 States state)
             {
-                var anyStateMock = new Mock<StateBehaviour<States>>();
-                var stateBehaviourMock = new Mock<StateBehaviour<States>>();
+                var anyStateMock = new Mock<StateObject<States>>();
+                var stateBehaviourMock = new Mock<StateObject<States>>();
 
                 var sut = new StateMachine<States>(manager)
                 {
@@ -58,9 +58,9 @@ namespace KDMagical.SUSMachine.Tests
             [Test, AutoMoqData]
             public void Enter_Exit_Actions_Called(IStateMachineManager manager)
             {
-                var anyStateMock = new Mock<StateBehaviour<States>>();
-                var behaviourMock1 = new Mock<StateBehaviour<States>>();
-                var behaviourMock2 = new Mock<StateBehaviour<States>>();
+                var anyStateMock = new Mock<StateObject<States>>();
+                var behaviourMock1 = new Mock<StateObject<States>>();
+                var behaviourMock2 = new Mock<StateObject<States>>();
 
                 var sut = new StateMachine<States>(manager)
                 {
@@ -86,8 +86,8 @@ namespace KDMagical.SUSMachine.Tests
             [Test, AutoMoqData]
             public void Close_Exit_Actions_Called(IStateMachineManager manager)
             {
-                var anyStateMock = new Mock<StateBehaviour<States>>();
-                var behaviourMock1 = new Mock<StateBehaviour<States>>();
+                var anyStateMock = new Mock<StateObject<States>>();
+                var behaviourMock1 = new Mock<StateObject<States>>();
 
                 var sut = new StateMachine<States>(manager)
                 {
@@ -105,8 +105,8 @@ namespace KDMagical.SUSMachine.Tests
             [Test, AutoMoqData]
             public void Tick_Actions_Called(IStateMachineManager manager, States state)
             {
-                var anyStateMock = new Mock<StateBehaviour<States>>();
-                var behaviourMock = new Mock<StateBehaviour<States>>();
+                var anyStateMock = new Mock<StateObject<States>>();
+                var behaviourMock = new Mock<StateObject<States>>();
 
                 var sut = new StateMachine<States>(manager)
                 {
@@ -150,8 +150,8 @@ namespace KDMagical.SUSMachine.Tests
             [Test, AutoMoqData]
             public void Event_Triggers_Called(IStateMachineManager manager, States state, Events fsmEvent)
             {
-                var anyStateMock = new Mock<StateBehaviour<States, Events>>();
-                var behaviourMock = new Mock<StateBehaviour<States, Events>>();
+                var anyStateMock = new Mock<StateObject<States, Events>>();
+                var behaviourMock = new Mock<StateObject<States, Events>>();
 
                 var sut = new StateMachine<States, Events>
                 {
