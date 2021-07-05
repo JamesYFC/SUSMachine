@@ -17,6 +17,7 @@ namespace KDMagical.SUSMachine
     }
 
     public delegate void StateAction<T>(IStateMachine<T> stateMachine) where T : struct, System.Enum;
+    public delegate void DataStateAction<TStates, TData>(IStateMachine<TStates> stateMachine, TData currentData) where TStates : struct, System.Enum;
 
     public abstract class StateObjectBase<TStates> : IStateObject<TStates>
         where TStates : struct, System.Enum
@@ -82,6 +83,29 @@ namespace KDMagical.SUSMachine
             transitions ??= new Transitions<TStates>();
 
         protected override Transitions<TStates> TransitionsBase => Transitions;
+    }
+
+    public class DataStateBehaviour<TStates, TData> : StateObject<TStates>
+        where TStates : struct, System.Enum
+    {
+        public TData Data { get; set; }
+
+        public new DataStateAction<TStates, TData> OnEnter { get; set; }
+        public new DataStateAction<TStates, TData> OnExit { get; set; }
+        public new DataStateAction<TStates, TData> OnUpdate { get; set; }
+        public new DataStateAction<TStates, TData> OnFixedUpdate { get; set; }
+        public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
+
+        public override void DoEnter()
+            => OnEnter?.Invoke(StateMachine, Data);
+        public override void DoExit()
+            => OnExit?.Invoke(StateMachine, Data);
+        public override void DoUpdate()
+            => OnUpdate?.Invoke(StateMachine, Data);
+        public override void DoFixedUpdate()
+            => OnFixedUpdate?.Invoke(StateMachine, Data);
+        public override void DoLateUpdate()
+            => OnLateUpdate?.Invoke(StateMachine, Data);
     }
 
     public class StateObject<TStates, TEvents> : StateObjectBase<TStates>
