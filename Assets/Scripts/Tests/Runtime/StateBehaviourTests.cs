@@ -5,10 +5,10 @@ namespace KDMagical.SUSMachine.Tests
 {
     public partial class SUSMachineTests
     {
-        internal class StateBehaviourTests
+        internal class StateObjectTests
         {
             [Test, AutoMoqData]
-            public void StateBehaviour_Calls_Actions(IStateMachine<States> stateMachine)
+            public void StateObject_Calls_Actions(IStateMachine<States> stateMachine)
             {
                 var actions = new MockStateActions();
                 var (enter, exit, update, fixedUpdate, lateUpdate) = actions;
@@ -66,7 +66,7 @@ namespace KDMagical.SUSMachine.Tests
             }
 
             [Test, AutoMoqData]
-            public void StateBehaviour_Events_Calls_Actions(IStateMachine<States> stateMachine)
+            public void StateObject_Events_Calls_Actions(IStateMachine<States> stateMachine)
             {
                 var (enter, exit, update, fixedUpdate, lateUpdate) = new MockStateActions();
                 var (event1, event2, event3) = new MockEventActions();
@@ -148,7 +148,7 @@ namespace KDMagical.SUSMachine.Tests
             [Test]
             [InlineAutoMoqData(Events.Event1, States.State1)]
             [InlineAutoMoqData(Events.Event2, null)]
-            public void StateBehaviour_Events_Returns_Transition(
+            public void StateObject_Events_Returns_Transition(
                 Events eventToTrigger,
                 States? expectedState,
                 IStateMachine<States> stateMachine
@@ -162,6 +162,23 @@ namespace KDMagical.SUSMachine.Tests
                 };
 
                 Assert.AreEqual(sut.TriggerEventAndGetTransition(eventToTrigger), expectedState);
+            }
+
+            [Test]
+            public void StatefulTest()
+            {
+                var x = new StateMachine<States>
+                {
+                    [States.State1] = new StatefulObject<States, (float x, string y)>
+                    {
+                        Data = (1, ":f"),
+                        OnEnter = (fsm, data) => System.Console.WriteLine("y: " + data.y),
+                        OnUpdate = (fsm, data) => fsm.CurrentState
+                        Transitions = {
+                            {fsm => true, States.State2}
+                        }
+                    }
+                };
             }
         }
     }

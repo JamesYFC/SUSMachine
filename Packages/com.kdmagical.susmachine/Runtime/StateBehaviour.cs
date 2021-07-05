@@ -53,7 +53,7 @@ namespace KDMagical.SUSMachine
         public virtual TStates? CheckAutoTransitions(TransitionType transitionType)
             => TransitionsBase?.CheckTransitions(transitionType);
 
-        public bool HasUpdateFunctions()
+        public virtual bool HasUpdateFunctions()
         {
             if ((
                     OnUpdate ??
@@ -85,29 +85,6 @@ namespace KDMagical.SUSMachine
         protected override Transitions<TStates> TransitionsBase => Transitions;
     }
 
-    public class DataStateBehaviour<TStates, TData> : StateObject<TStates>
-        where TStates : struct, System.Enum
-    {
-        public TData Data { get; set; }
-
-        public new DataStateAction<TStates, TData> OnEnter { get; set; }
-        public new DataStateAction<TStates, TData> OnExit { get; set; }
-        public new DataStateAction<TStates, TData> OnUpdate { get; set; }
-        public new DataStateAction<TStates, TData> OnFixedUpdate { get; set; }
-        public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
-
-        public override void DoEnter()
-            => OnEnter?.Invoke(StateMachine, Data);
-        public override void DoExit()
-            => OnExit?.Invoke(StateMachine, Data);
-        public override void DoUpdate()
-            => OnUpdate?.Invoke(StateMachine, Data);
-        public override void DoFixedUpdate()
-            => OnFixedUpdate?.Invoke(StateMachine, Data);
-        public override void DoLateUpdate()
-            => OnLateUpdate?.Invoke(StateMachine, Data);
-    }
-
     public class StateObject<TStates, TEvents> : StateObjectBase<TStates>
         where TStates : struct, System.Enum
         where TEvents : struct, System.Enum
@@ -133,5 +110,72 @@ namespace KDMagical.SUSMachine
 
             return Transitions.CheckEventTransitions(fsmEvent);
         }
+    }
+
+    public interface IStatefulObject<TData>
+    {
+        TData Data { get; set; }
+    }
+
+    public class StatefulObject<TStates, TData> : StateObject<TStates>, IStatefulObject<TData>
+        where TStates : struct, System.Enum
+    {
+        public TData Data { get; set; }
+
+        private Transitions<TStates> transitions;
+        // TODO: make transition funcs get the state data param
+        // public Transitions<TStates> Transitions =>
+        //     transitions ??= new Transitions<TStates>();
+
+        public new DataStateAction<TStates, TData> OnEnter { get; set; }
+        public new DataStateAction<TStates, TData> OnExit { get; set; }
+        public new DataStateAction<TStates, TData> OnUpdate { get; set; }
+        public new DataStateAction<TStates, TData> OnFixedUpdate { get; set; }
+        public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
+
+        public override void DoEnter()
+            => OnEnter?.Invoke(StateMachine, Data);
+        public override void DoExit()
+            => OnExit?.Invoke(StateMachine, Data);
+        public override void DoUpdate()
+            => OnUpdate?.Invoke(StateMachine, Data);
+        public override void DoFixedUpdate()
+            => OnFixedUpdate?.Invoke(StateMachine, Data);
+        public override void DoLateUpdate()
+            => OnLateUpdate?.Invoke(StateMachine, Data);
+
+        public override bool HasUpdateFunctions()
+        {
+            return base.HasUpdateFunctions();
+        }
+
+        public override TStates? CheckAutoTransitions(TransitionType transitionType)
+        {
+            return base.CheckAutoTransitions(transitionType);
+        }
+    }
+
+    public class StatefulObject<TStates, TEvents, TData> : StateObject<TStates, TEvents>, IStatefulObject<TData>
+        where TStates : struct, System.Enum
+        where TEvents : struct, System.Enum
+    {
+        public TData Data { get; set; }
+
+        public new DataStateAction<TStates, TData> OnEnter { get; set; }
+        public new DataStateAction<TStates, TData> OnExit { get; set; }
+        public new DataStateAction<TStates, TData> OnUpdate { get; set; }
+        public new DataStateAction<TStates, TData> OnFixedUpdate { get; set; }
+        public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
+
+        public override void DoEnter()
+            => OnEnter?.Invoke(StateMachine, Data);
+        public override void DoExit()
+            => OnExit?.Invoke(StateMachine, Data);
+        public override void DoUpdate()
+            => OnUpdate?.Invoke(StateMachine, Data);
+        public override void DoFixedUpdate()
+            => OnFixedUpdate?.Invoke(StateMachine, Data);
+        public override void DoLateUpdate()
+            => OnLateUpdate?.Invoke(StateMachine, Data);
     }
 }
