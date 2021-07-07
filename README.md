@@ -327,7 +327,7 @@ void StateCheck()
 }
 ```
 
-Be careful when using this in AnyState, as it can cause a stack overflow!
+Be careful when using this in `OnEnter` and `OnExit`, as improper use can cause a stack overflow!
 
 ```cs
 var fsm = new StateMachine<States>
