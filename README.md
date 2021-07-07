@@ -315,7 +315,7 @@ If the return value of `GetJumpHeight()` rises above the limit before, or in the
 
 ### Manual
 
-The built-in event and transitions support should cover practically all use cases, but a manual `SetState` method is provided just in case you need it.
+The built-in event and transitions support should cover most use cases, but a manual `SetState` method is also provided.
 
 ```cs
 void StateCheck()
@@ -327,7 +327,7 @@ void StateCheck()
 }
 ```
 
-This method should **not** be called within the same state machine's state callback actions, as it can cause confusing results or even a stack overflow!
+Be careful when using this in AnyState, as it can cause a stack overflow!
 
 ```cs
 var fsm = new StateMachine<States>
