@@ -3,9 +3,10 @@ using KDMagical.SUSMachine;
 
 public class Test : MonoBehaviour
 {
-    private enum States { Idle, Jumping }
+    private enum States { Idle, Jumping, Blocking }
 
     private float jumpTime = 4f;
+    private int blockFrames = 40;
 
     private StateMachine<States> stateMachine;
 
@@ -19,7 +20,7 @@ public class Test : MonoBehaviour
 
             [States.Idle] =
             {
-                OnUpdate = fsm => Debug.Log("time since idle: " + fsm.TimeInState),
+                //OnUpdate = fsm => Debug.Log("time since idle: " + fsm.TimeInState),
                 OnExit = SomeFunc,
 
                 Transitions =
@@ -27,6 +28,10 @@ public class Test : MonoBehaviour
                     {
                         _ => Input.GetKeyDown(KeyCode.Space),
                         States.Jumping
+                    },
+                    {
+                        _ => Input.GetKeyDown(KeyCode.Alpha1),
+                        States.Blocking
                     }
                 }
             },
@@ -41,6 +46,22 @@ public class Test : MonoBehaviour
                         fsm => fsm.TimeInState > jumpTime,
                         States.Idle
                     }
+                }
+            },
+
+            [States.Blocking] = new Stateful<States, int>
+            {
+                InitialData = 0,
+                OnUpdate = (_, data, modify) =>
+                {
+                    // every frame it ups count by 1
+                    modify(data + 1);
+                    Debug.Log("data: " + data);
+                },
+
+                Transitions =
+                {
+                    {(_, data) => data > blockFrames, States.Idle}
                 }
             }
         };
