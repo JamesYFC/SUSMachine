@@ -18,7 +18,15 @@ namespace KDMagical.SUSMachine
     /// <returns>Null if no transition should be made, and state to transition to if transition should be made.</returns>
     public delegate T? AutoTransition<T>(IStateMachine<T> fsm) where T : struct, System.Enum;
 
-    public class Transitions<TStates> : IEnumerable<AutoTransition<TStates>>
+    public interface ITransitions<TStates>
+        where TStates : struct, System.Enum
+    {
+        void Initialize(IStateMachine<TStates> stateMachine);
+        TStates? CheckTransitions(TransitionType transitionType);
+        bool HasUpdateFunctions();
+    }
+
+    public class StatelessTransitions<TStates> : IEnumerable<AutoTransition<TStates>>, ITransitions<TStates>
         where TStates : struct, System.Enum
     {
         private Dictionary<TransitionType, List<AutoTransition<TStates>>> updateTransitions;
@@ -83,7 +91,7 @@ namespace KDMagical.SUSMachine
         IEnumerator<AutoTransition<TStates>> IEnumerable<AutoTransition<TStates>>.GetEnumerator() => throw new System.NotImplementedException();
     }
 
-    public class Transitions<TStates, TEvents> : Transitions<TStates>
+    public class StatelessTransitions<TStates, TEvents> : StatelessTransitions<TStates>
         where TStates : struct, System.Enum
         where TEvents : struct, System.Enum
     {

@@ -17,20 +17,12 @@ namespace KDMagical.SUSMachine
     }
 
     public delegate void StateAction<T>(IStateMachine<T> stateMachine) where T : struct, System.Enum;
-    public delegate void DataStateAction<TStates, TData>(IStateMachine<TStates> stateMachine, TData currentData) where TStates : struct, System.Enum;
 
-    public abstract class StateObjectBase<TStates> : IStateObject<TStates>
+    public abstract class StateObjectBase<TStates, TCallback> : IStateObject<TStates>
         where TStates : struct, System.Enum
     {
-        protected IStateMachine<TStates> StateMachine { get; private set; }
-
-        protected abstract Transitions<TStates> TransitionsBase { get; }
-
-        public StateAction<TStates> OnEnter { get; set; }
-        public StateAction<TStates> OnExit { get; set; }
-        public StateAction<TStates> OnUpdate { get; set; }
-        public StateAction<TStates> OnFixedUpdate { get; set; }
-        public StateAction<TStates> OnLateUpdate { get; set; }
+        protected IStateMachine<TStates> StateMachine { get; set; }
+        protected abstract ITransitions<TStates> TransitionsBase { get; }
 
         public virtual void Initialize(IStateMachine<TStates> stateMachine)
         {
@@ -38,20 +30,21 @@ namespace KDMagical.SUSMachine
             TransitionsBase?.Initialize(stateMachine);
         }
 
-        public virtual void DoEnter()
-            => OnEnter?.Invoke(StateMachine);
-        public virtual void DoExit()
-            => OnExit?.Invoke(StateMachine);
-        public virtual void DoUpdate()
-            => OnUpdate?.Invoke(StateMachine);
-        public virtual void DoFixedUpdate()
-            => OnFixedUpdate?.Invoke(StateMachine);
-        public virtual void DoLateUpdate()
-            => OnLateUpdate?.Invoke(StateMachine);
+        public TCallback OnEnter { get; set; }
+        public TCallback OnExit { get; set; }
+        public TCallback OnUpdate { get; set; }
+        public TCallback OnFixedUpdate { get; set; }
+        public TCallback OnLateUpdate { get; set; }
 
-        /// <inheritdoc cref="KDMagical.SUSMachine.Transitions{TStates}.CheckTransitions(IStateMachine{TStates}, TransitionType)" />
+        public abstract void DoEnter();
+        public abstract void DoExit();
+        public abstract void DoUpdate();
+        public abstract void DoFixedUpdate();
+        public abstract void DoLateUpdate();
+
+        /// <inheritdoc cref="KDMagical.SUSMachine.StatelessTransitions{TStates}.CheckTransitions(IStateMachine{TStates}, TransitionType)" />
         public virtual TStates? CheckAutoTransitions(TransitionType transitionType)
-            => TransitionsBase?.CheckTransitions(transitionType);
+            => TransitionsBase.CheckTransitions(transitionType);
 
         public virtual bool HasUpdateFunctions()
         {
@@ -71,28 +64,44 @@ namespace KDMagical.SUSMachine
         }
     }
 
+    public abstract class StatelessBase<TStates> : StateObjectBase<TStates, StateAction<TStates>>
+        where TStates : struct, System.Enum
+    {
+
+        public override void DoEnter()
+            => OnEnter?.Invoke(StateMachine);
+        public override void DoExit()
+            => OnExit?.Invoke(StateMachine);
+        public override void DoUpdate()
+            => OnUpdate?.Invoke(StateMachine);
+        public override void DoFixedUpdate()
+            => OnFixedUpdate?.Invoke(StateMachine);
+        public override void DoLateUpdate()
+            => OnLateUpdate?.Invoke(StateMachine);
+    }
+
     /// <summary>
     /// Contains the Action delegates and AutoTransitions of a particular state.
     /// </summary>
     /// <typeparam name="TStates"></typeparam>
-    public class StateObject<TStates> : StateObjectBase<TStates>
+    public class Stateless<TStates> : StatelessBase<TStates>
         where TStates : struct, System.Enum
     {
-        private Transitions<TStates> transitions;
-        public Transitions<TStates> Transitions =>
-            transitions ??= new Transitions<TStates>();
+        private StatelessTransitions<TStates> transitions;
+        public StatelessTransitions<TStates> Transitions =>
+            transitions ??= new StatelessTransitions<TStates>();
 
-        protected override Transitions<TStates> TransitionsBase => Transitions;
+        protected override ITransitions<TStates> TransitionsBase => Transitions;
     }
 
-    public class StateObject<TStates, TEvents> : StateObjectBase<TStates>
+    public class Stateless<TStates, TEvents> : StatelessBase<TStates>
         where TStates : struct, System.Enum
         where TEvents : struct, System.Enum
     {
-        private Transitions<TStates, TEvents> transitions;
-        public Transitions<TStates, TEvents> Transitions =>
-            transitions ??= new Transitions<TStates, TEvents>();
-        protected override Transitions<TStates> TransitionsBase => Transitions;
+        private StatelessTransitions<TStates, TEvents> transitions;
+        public StatelessTransitions<TStates, TEvents> Transitions =>
+            transitions ??= new StatelessTransitions<TStates, TEvents>();
+        protected override ITransitions<TStates> TransitionsBase => Transitions;
 
         private Dictionary<TEvents, StateAction<TStates>> onEvents;
 
@@ -112,70 +121,50 @@ namespace KDMagical.SUSMachine
         }
     }
 
-    public interface IStatefulObject<TData>
-    {
-        TData Data { get; set; }
-    }
-
-    public class StatefulObject<TStates, TData> : StateObject<TStates>, IStatefulObject<TData>
+    public delegate void DataStateAction<TStates, TData>(IStateMachine<TStates> stateMachine, TData currentData)
         where TStates : struct, System.Enum
+        where TData : struct;
+
+    public abstract class StatefulBase<TStates, TData> : StateObjectBase<TStates, DataStateAction<TStates, TData>>
+        where TStates : struct, System.Enum
+        where TData : struct
     {
-        public TData Data { get; set; }
+        public TData InitialData { get; set; }
 
-        private Transitions<TStates> transitions;
-        // TODO: make transition funcs get the state data param
-        // public Transitions<TStates> Transitions =>
-        //     transitions ??= new Transitions<TStates>();
+        protected TData currentData;
+        public ref TData CurrentData => ref currentData;
 
-        public new DataStateAction<TStates, TData> OnEnter { get; set; }
-        public new DataStateAction<TStates, TData> OnExit { get; set; }
-        public new DataStateAction<TStates, TData> OnUpdate { get; set; }
-        public new DataStateAction<TStates, TData> OnFixedUpdate { get; set; }
-        public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
-
-        public override void DoEnter()
-            => OnEnter?.Invoke(StateMachine, Data);
-        public override void DoExit()
-            => OnExit?.Invoke(StateMachine, Data);
-        public override void DoUpdate()
-            => OnUpdate?.Invoke(StateMachine, Data);
-        public override void DoFixedUpdate()
-            => OnFixedUpdate?.Invoke(StateMachine, Data);
-        public override void DoLateUpdate()
-            => OnLateUpdate?.Invoke(StateMachine, Data);
-
-        public override bool HasUpdateFunctions()
+        public override void Initialize(IStateMachine<TStates> stateMachine)
         {
-            return base.HasUpdateFunctions();
+            base.Initialize(stateMachine);
+            ResetData();
         }
 
-        public override TStates? CheckAutoTransitions(TransitionType transitionType)
+        protected void ResetData()
         {
-            return base.CheckAutoTransitions(transitionType);
+            currentData = InitialData;
         }
     }
 
-    public class StatefulObject<TStates, TEvents, TData> : StateObject<TStates, TEvents>, IStatefulObject<TData>
+    public class Stateful<TStates, TData> : StatefulBase<TStates, TData>
         where TStates : struct, System.Enum
-        where TEvents : struct, System.Enum
+        where TData : struct
     {
-        public TData Data { get; set; }
+        private StatelessTransitions<TStates> transitions;
+        public StatelessTransitions<TStates> Transitions =>
+            transitions ??= new StatelessTransitions<TStates>();
 
-        public new DataStateAction<TStates, TData> OnEnter { get; set; }
-        public new DataStateAction<TStates, TData> OnExit { get; set; }
-        public new DataStateAction<TStates, TData> OnUpdate { get; set; }
-        public new DataStateAction<TStates, TData> OnFixedUpdate { get; set; }
-        public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
+        protected override ITransitions<TStates> TransitionsBase => throw new System.NotImplementedException();
 
         public override void DoEnter()
-            => OnEnter?.Invoke(StateMachine, Data);
+            => OnEnter?.Invoke(StateMachine, CurrentData);
         public override void DoExit()
-            => OnExit?.Invoke(StateMachine, Data);
+            => OnExit?.Invoke(StateMachine, CurrentData);
         public override void DoUpdate()
-            => OnUpdate?.Invoke(StateMachine, Data);
+            => OnUpdate?.Invoke(StateMachine, CurrentData);
         public override void DoFixedUpdate()
-            => OnFixedUpdate?.Invoke(StateMachine, Data);
+            => OnFixedUpdate?.Invoke(StateMachine, CurrentData);
         public override void DoLateUpdate()
-            => OnLateUpdate?.Invoke(StateMachine, Data);
+            => OnLateUpdate?.Invoke(StateMachine, CurrentData);
     }
 }

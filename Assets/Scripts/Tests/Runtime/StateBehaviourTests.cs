@@ -13,7 +13,7 @@ namespace KDMagical.SUSMachine.Tests
                 var actions = new MockStateActions();
                 var (enter, exit, update, fixedUpdate, lateUpdate) = actions;
 
-                var sut = new StateObject<States>
+                var sut = new Stateless<States>
                 {
                     OnEnter = enter.Object,
                     OnExit = exit.Object,
@@ -71,7 +71,7 @@ namespace KDMagical.SUSMachine.Tests
                 var (enter, exit, update, fixedUpdate, lateUpdate) = new MockStateActions();
                 var (event1, event2, event3) = new MockEventActions();
 
-                var sut = new StateObject<States, Events>
+                var sut = new Stateless<States, Events>
                 {
                     OnEnter = enter.Object,
                     OnExit = exit.Object,
@@ -154,7 +154,7 @@ namespace KDMagical.SUSMachine.Tests
                 IStateMachine<States> stateMachine
             )
             {
-                var sut = new StateObject<States, Events>
+                var sut = new Stateless<States, Events>
                 {
                     Transitions = {
                         {States.State1, Events.Event1}
@@ -167,18 +167,19 @@ namespace KDMagical.SUSMachine.Tests
             [Test]
             public void StatefulTest()
             {
-                var x = new StateMachine<States>
-                {
-                    [States.State1] = new StatefulObject<States, (float x, string y)>
-                    {
-                        Data = (1, ":f"),
-                        OnEnter = (fsm, data) => System.Console.WriteLine("y: " + data.y),
-                        OnUpdate = (fsm, data) => fsm.CurrentState
-                        Transitions = {
-                            {fsm => true, States.State2}
-                        }
-                    }
-                };
+                // StatefulObject<States, (float x, string y)> z;
+
+                // var x = new StateMachine<States>
+                // {
+                //     [States.State1] = z = new StatefulObject<States, (float x, string y)>
+                //     {
+                //         CurrentData = (1, ":f"),
+                //         // OnEnter = (fsm, in int data) => { System.Console.WriteLine("y: " + data.y); data.x = 3; },
+                //         Transitions = {
+                //             {fsm => true, States.State2}
+                //         }
+                //     }
+                // };
             }
         }
     }

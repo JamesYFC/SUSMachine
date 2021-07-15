@@ -169,24 +169,24 @@ namespace KDMagical.SUSMachine
 
     public class StateMachine<T> : StateMachineBase<T> where T : struct, System.Enum
     {
-        private Dictionary<T, StateObject<T>> stateBehaviours = new Dictionary<T, StateObject<T>>();
+        private Dictionary<T, Stateless<T>> stateBehaviours = new Dictionary<T, Stateless<T>>();
         protected override IEnumerable<IStateObject<T>> StateBehaviours => stateBehaviours.Values;
 
-        public StateObject<T> this[T state]
+        public Stateless<T> this[T state]
         {
             get => stateBehaviours.GetOrCreate(state);
             set => stateBehaviours[state] = value;
         }
 
-        public StateObject<T> CurrentStateBehaviour => this[CurrentState];
+        public Stateless<T> CurrentStateBehaviour => this[CurrentState];
         protected override IStateObject<T> CurrentStateBehaviourBase => CurrentStateBehaviour;
 
-        private StateObject<T> anyState;
+        private Stateless<T> anyState;
         protected override IStateObject<T> AnyStateBase => anyState;
 
-        public StateObject<T> AnyState
+        public Stateless<T> AnyState
         {
-            get => anyState ??= new StateObject<T>();
+            get => anyState ??= new Stateless<T>();
             set => anyState = value;
         }
 
@@ -199,26 +199,26 @@ namespace KDMagical.SUSMachine
         where TStates : struct, System.Enum
         where TEvents : struct, System.Enum
     {
-        private Dictionary<TStates, StateObject<TStates, TEvents>> stateBehaviours =
-            new Dictionary<TStates, StateObject<TStates, TEvents>>();
+        private Dictionary<TStates, Stateless<TStates, TEvents>> stateBehaviours =
+            new Dictionary<TStates, Stateless<TStates, TEvents>>();
 
         protected override IEnumerable<IStateObject<TStates>> StateBehaviours => stateBehaviours.Values;
 
-        public StateObject<TStates, TEvents> this[TStates state]
+        public Stateless<TStates, TEvents> this[TStates state]
         {
             get => stateBehaviours.GetOrCreate(state);
             set => stateBehaviours[state] = value;
         }
 
-        public StateObject<TStates, TEvents> CurrentStateBehaviour => this[CurrentState];
+        public Stateless<TStates, TEvents> CurrentStateBehaviour => this[CurrentState];
         protected override IStateObject<TStates> CurrentStateBehaviourBase => CurrentStateBehaviour;
 
-        private StateObject<TStates, TEvents> anyState;
+        private Stateless<TStates, TEvents> anyState;
         protected override IStateObject<TStates> AnyStateBase => anyState;
 
-        public StateObject<TStates, TEvents> AnyState
+        public Stateless<TStates, TEvents> AnyState
         {
-            get => anyState ??= new StateObject<TStates, TEvents>();
+            get => anyState ??= new Stateless<TStates, TEvents>();
             set => anyState = value;
         }
 

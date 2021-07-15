@@ -15,7 +15,7 @@ namespace KDMagical.SUSMachine.Tests
                 var fixedUpdateTransition = new Mock<AutoTransition<States>>();
                 var lateUpdateTransition = new Mock<AutoTransition<States>>();
 
-                var sut = new Transitions<States>
+                var sut = new StatelessTransitions<States>
                 {
                     {updateTransition.Object, TransitionType.Update},
                     {fixedUpdateTransition.Object, TransitionType.FixedUpdate},
@@ -50,7 +50,7 @@ namespace KDMagical.SUSMachine.Tests
             [Test, AutoMoqData]
             public void TransitionCheck_Returns_NextState(IStateMachine<States> stateMachine)
             {
-                var sut = new Transitions<States>
+                var sut = new StatelessTransitions<States>
                 {
                     {_ => States.State1, TransitionType.Update},
                     {_ => null, TransitionType.FixedUpdate}
@@ -66,7 +66,7 @@ namespace KDMagical.SUSMachine.Tests
             [Test, AutoMoqData]
             public void TransitionCheck_Returns_Null_On_NoTransitions(IStateMachine<States> stateMachine)
             {
-                var sut = new Transitions<States> { };
+                var sut = new StatelessTransitions<States> { };
 
                 sut.Initialize(stateMachine);
 
@@ -80,7 +80,7 @@ namespace KDMagical.SUSMachine.Tests
                 IStateMachine<States> stateMachine,
                 TransitionType transitionType)
             {
-                var sut = new Transitions<States>
+                var sut = new StatelessTransitions<States>
                 {
                     {_ => States.State1, transitionType},
                     {_ => States.State2, transitionType},
@@ -101,7 +101,7 @@ namespace KDMagical.SUSMachine.Tests
                 TransitionType transitionType,
                 IStateMachine<States> stateMachine)
             {
-                var sut = new Transitions<States>
+                var sut = new StatelessTransitions<States>
                 {
                     {_ => num < 0, States.State1, transitionType},
                     {_ => num % 2 == 0, States.State2, transitionType},
@@ -123,7 +123,7 @@ namespace KDMagical.SUSMachine.Tests
                 TransitionType transitionType,
                 IStateMachine<States> stateMachine)
             {
-                var sut = new Transitions<States>
+                var sut = new StatelessTransitions<States>
                 {
                     {_ => num < 0 ? (States?)States.State1 : null, transitionType},
                     {_ => {
@@ -164,7 +164,7 @@ namespace KDMagical.SUSMachine.Tests
                 States? expectedState,
                 IStateMachine<States> stateMachine)
             {
-                var sut = new Transitions<States, Events> { { States.State1, Events.Event1 } };
+                var sut = new StatelessTransitions<States, Events> { { States.State1, Events.Event1 } };
 
                 sut.Initialize(stateMachine);
 
@@ -182,7 +182,7 @@ namespace KDMagical.SUSMachine.Tests
                 States? expectedState,
                 IStateMachine<States> stateMachine)
             {
-                var sut = new Transitions<States, Events> { {
+                var sut = new StatelessTransitions<States, Events> { {
                     _ => conditionShouldPass,
                     States.State1,
                     Events.Event1
@@ -206,7 +206,7 @@ namespace KDMagical.SUSMachine.Tests
                 States? expectedState,
                 IStateMachine<States> stateMachine)
             {
-                var sut = new Transitions<States, Events> { {
+                var sut = new StatelessTransitions<States, Events> { {
                     _ => num switch
                     {
                         1 => States.State1,
@@ -234,7 +234,7 @@ namespace KDMagical.SUSMachine.Tests
                 States? expectedState,
                 IStateMachine<States> stateMachine)
             {
-                var sut = new Transitions<States, Events> {
+                var sut = new StatelessTransitions<States, Events> {
                     {States.State1, Events.Event1},
                     {_ => num > 0, States.State2, Events.Event1}, // event1 should never return State2
                     {_ => num > 0, States.State3, Events.Event2},
