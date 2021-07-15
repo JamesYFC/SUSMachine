@@ -16,6 +16,13 @@ namespace KDMagical.SUSMachine
         bool HasUpdateFunctions();
     }
 
+    public interface IStateObject<TStates, TEvents> : IStateObject<TStates>
+        where TStates : struct, System.Enum
+        where TEvents : struct, System.Enum
+    {
+
+    }
+
     public delegate void StateAction<T>(IStateMachine<T> stateMachine) where T : struct, System.Enum;
 
     public abstract class StateObjectBase<TStates, TCallback> : IStateObject<TStates>
@@ -64,10 +71,10 @@ namespace KDMagical.SUSMachine
         }
     }
 
+
     public abstract class StatelessBase<TStates> : StateObjectBase<TStates, StateAction<TStates>>
         where TStates : struct, System.Enum
     {
-
         public override void DoEnter()
             => OnEnter?.Invoke(StateMachine);
         public override void DoExit()
@@ -94,7 +101,7 @@ namespace KDMagical.SUSMachine
         protected override ITransitions<TStates> TransitionsBase => Transitions;
     }
 
-    public class Stateless<TStates, TEvents> : StatelessBase<TStates>
+    public class Stateless<TStates, TEvents> : StatelessBase<TStates>, IStateObject<TStates, TEvents>
         where TStates : struct, System.Enum
         where TEvents : struct, System.Enum
     {
@@ -121,50 +128,119 @@ namespace KDMagical.SUSMachine
         }
     }
 
-    public delegate void DataStateAction<TStates, TData>(IStateMachine<TStates> stateMachine, TData currentData)
-        where TStates : struct, System.Enum
-        where TData : struct;
-
-    public abstract class StatefulBase<TStates, TData> : StateObjectBase<TStates, DataStateAction<TStates, TData>>
-        where TStates : struct, System.Enum
-        where TData : struct
+    public class StatefulContainer<TData> where TData : struct
     {
         public TData InitialData { get; set; }
 
-        protected TData currentData;
-        public ref TData CurrentData => ref currentData;
+        public TData CurrentData;
 
-        public override void Initialize(IStateMachine<TStates> stateMachine)
-        {
-            base.Initialize(stateMachine);
-            ResetData();
-        }
+        public void Modify(TData newVal)
+            => CurrentData = newVal;
 
-        protected void ResetData()
+        public void ResetData()
         {
-            currentData = InitialData;
+            CurrentData = InitialData;
         }
     }
 
-    public class Stateful<TStates, TData> : StatefulBase<TStates, TData>
+    public delegate void DataStateAction<TStates, TData>(IStateMachine<TStates> stateMachine, TData currentData, System.Action<TData> modify)
+        where TStates : struct, System.Enum
+        where TData : struct;
+
+    public class Stateful<TStates, TData> : Stateless<TStates>
         where TStates : struct, System.Enum
         where TData : struct
     {
-        private StatelessTransitions<TStates> transitions;
-        public StatelessTransitions<TStates> Transitions =>
-            transitions ??= new StatelessTransitions<TStates>();
+        private StatefulTransitions<TStates, TData> transitions;
+        public new StatefulTransitions<TStates, TData> Transitions =>
+            transitions ??= new StatefulTransitions<TStates, TData>();
 
-        protected override ITransitions<TStates> TransitionsBase => throw new System.NotImplementedException();
+        protected override ITransitions<TStates> TransitionsBase => Transitions;
+
+        private StatefulContainer<TData> Data = new StatefulContainer<TData>();
+
+        protected System.Action<TData> Modify { get; private set; }
+
+        public TData InitialData
+        {
+            set => Data.InitialData = value;
+        }
+
+        public new DataStateAction<TStates, TData> OnEnter { get; set; }
+        public new DataStateAction<TStates, TData> OnExit { get; set; }
+        public new DataStateAction<TStates, TData> OnUpdate { get; set; }
+        public new DataStateAction<TStates, TData> OnFixedUpdate { get; set; }
+        public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
 
         public override void DoEnter()
-            => OnEnter?.Invoke(StateMachine, CurrentData);
+            => OnEnter?.Invoke(StateMachine, Data.CurrentData, Modify);
         public override void DoExit()
-            => OnExit?.Invoke(StateMachine, CurrentData);
+        {
+            OnExit?.Invoke(StateMachine, Data.CurrentData, Modify);
+            Data.ResetData();
+        }
         public override void DoUpdate()
-            => OnUpdate?.Invoke(StateMachine, CurrentData);
+            => OnUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
         public override void DoFixedUpdate()
-            => OnFixedUpdate?.Invoke(StateMachine, CurrentData);
+            => OnFixedUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
         public override void DoLateUpdate()
-            => OnLateUpdate?.Invoke(StateMachine, CurrentData);
+            => OnLateUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
+
+        public override void Initialize(IStateMachine<TStates> stateMachine)
+        {
+            Data.ResetData();
+            Modify = Data.Modify;
+            transitions.SetDataContainer(Data);
+            base.Initialize(stateMachine);
+        }
+    }
+
+    public class Stateful<TStates, TEvents, TData> : Stateless<TStates, TEvents>
+        where TStates : struct, System.Enum
+        where TEvents : struct, System.Enum
+        where TData : struct
+    {
+        private StatefulTransitions<TStates, TEvents, TData> transitions;
+        public new StatefulTransitions<TStates, TEvents, TData> Transitions =>
+            transitions ??= new StatefulTransitions<TStates, TEvents, TData>();
+
+        protected override ITransitions<TStates> TransitionsBase => Transitions;
+
+        private StatefulContainer<TData> Data;
+
+        protected System.Action<TData> Modify { get; private set; }
+
+        public TData InitialData
+        {
+            set => Data.InitialData = value;
+        }
+
+        public new DataStateAction<TStates, TData> OnEnter { get; set; }
+        public new DataStateAction<TStates, TData> OnExit { get; set; }
+        public new DataStateAction<TStates, TData> OnUpdate { get; set; }
+        public new DataStateAction<TStates, TData> OnFixedUpdate { get; set; }
+        public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
+
+        public override void DoEnter()
+            => OnEnter?.Invoke(StateMachine, Data.CurrentData, Modify);
+        public override void DoExit()
+        {
+            OnExit?.Invoke(StateMachine, Data.CurrentData, Modify);
+            Data.ResetData();
+        }
+        public override void DoUpdate()
+            => OnUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
+        public override void DoFixedUpdate()
+            => OnFixedUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
+        public override void DoLateUpdate()
+            => OnLateUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
+
+        public override void Initialize(IStateMachine<TStates> stateMachine)
+        {
+            Data.ResetData();
+            Modify = Data.Modify;
+            transitions.SetDataContainer(Data);
+            base.Initialize(stateMachine);
+        }
     }
 }

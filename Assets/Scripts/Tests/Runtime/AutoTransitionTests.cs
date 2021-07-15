@@ -11,9 +11,9 @@ namespace KDMagical.SUSMachine.Tests
             public void TransitionCheck_ShouldCall_AutoTransition_With_Params(
                 IStateMachine<States> stateMachine)
             {
-                var updateTransition = new Mock<AutoTransition<States>>();
-                var fixedUpdateTransition = new Mock<AutoTransition<States>>();
-                var lateUpdateTransition = new Mock<AutoTransition<States>>();
+                var updateTransition = new Mock<Transition<States>>();
+                var fixedUpdateTransition = new Mock<Transition<States>>();
+                var lateUpdateTransition = new Mock<Transition<States>>();
 
                 var sut = new StatelessTransitions<States>
                 {
