@@ -136,26 +136,18 @@ namespace KDMagical.SUSMachine
 
         public StatefulContainer() { }
 
-        public StatefulContainer(TData initialData)
-        {
-            InitialData = initialData;
-            CurrentData = InitialData;
-        }
+        public StatefulContainer(TData initialData) => InitialData = initialData;
 
-        public void Modify(TData newVal)
-            => CurrentData = newVal;
+        public void Modify(TData newVal) => CurrentData = newVal;
 
-        public void ResetData()
-        {
-            CurrentData = InitialData;
-        }
+        public void ResetData() => CurrentData = InitialData;
     }
 
     public delegate void StatefulAction<TStates, TData>(IStateMachine<TStates> stateMachine, TData currentData, System.Action<TData> modify)
         where TStates : struct, System.Enum
         where TData : struct;
 
-    /// it seems we're forced to inherit from Stateless here and live with a bunch of shadowed members.
+    /// it seems we're forced to inherit from Stateless here and live with a bunch of shadowed members and duplicated code.
     /// This is because I want the api in StateMachine<T> where you don't have to type the constructor for Stateless<T> by default.
     /// Because indexers for a given parameter type can only be set for one type, we can't overload stateMachine[State] = new Stateful<T1, T2> without inheriting from Stateless<T>
     public class Stateful<TStates, TData> : Stateless<TStates>
@@ -202,6 +194,23 @@ namespace KDMagical.SUSMachine
             data.ResetData();
             Transitions.SetDataContainer(data);
             base.Initialize(stateMachine);
+        }
+
+        public override bool HasUpdateFunctions()
+        {
+            if ((
+                    OnUpdate ??
+                    OnFixedUpdate ??
+                    OnLateUpdate
+                ) != null)
+            {
+                return true;
+            }
+
+            if (TransitionsBase != null && TransitionsBase.HasUpdateFunctions())
+                return true;
+
+            return false;
         }
     }
 
@@ -268,6 +277,23 @@ namespace KDMagical.SUSMachine
                 action(StateMachine, CurrentData, Modify);
 
             return Transitions.CheckEventTransitions(fsmEvent);
+        }
+
+        public override bool HasUpdateFunctions()
+        {
+            if ((
+                    OnUpdate ??
+                    OnFixedUpdate ??
+                    OnLateUpdate
+                ) != null)
+            {
+                return true;
+            }
+
+            if (TransitionsBase != null && TransitionsBase.HasUpdateFunctions())
+                return true;
+
+            return false;
         }
     }
 }

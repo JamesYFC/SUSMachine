@@ -51,17 +51,13 @@ public class Test : MonoBehaviour
 
             [States.Blocking] = new Stateful<States, (int frames, string someString)>
             {
-                InitialData =
-                (
-                    frames: 0,
-                    someString: ""
-                ),
-
                 OnUpdate = (_, data, modify) =>
                 {
+                    Debug.Log($"frame: {data.frames}, str: {data.someString}");
+
+                    data.frames++;
                     // every frame it ups count by 1
-                    modify((frames: data.frames + 1, someString: data.someString));
-                    Debug.Log("data: " + data.frames);
+                    modify(data);
                 },
 
                 Transitions =
@@ -83,4 +79,37 @@ public class Test : MonoBehaviour
     {
         stateMachine.Close();
     }
+
+    #region api tests
+
+    enum TestStates { A, B }
+    enum TestEvents { X, Y }
+
+    private void StatefulApiTest()
+    {
+        var fsm = new StateMachine<TestStates, TestEvents>
+        {
+            [TestStates.A] = new Stateful<TestStates, TestEvents, int>
+            {
+                OnEnter = (fsm, val, modify) => Debug.Log(val),
+                [TestEvents.X] = (fsm, val, modify) => Debug.Log(val),
+
+                Transitions =
+                {
+                    // complex omit data
+                    {_ => TestStates.A},
+                    // complex with data
+                    {(fsm, data) => TestStates.A},
+                    // simple omit data
+                    {_ => true, TestStates.B, TestEvents.X},
+                    // simple with data
+                    {(_, data) => true, TestStates.B, TestEvents.X},
+                    // super simple
+                    {TestStates.B, TestEvents.Y}
+                }
+            }
+        };
+    }
+
+    #endregion
 }

@@ -266,8 +266,11 @@ namespace KDMagical.SUSMachine.Tests
                         {lateUpdateTransitionMock.Object, TransitionType.LateUpdate}
                     };
 
-                    sut.SetDataContainer(new StatefulContainer<StateData>(someData));
+                    var statefulContainer = new StatefulContainer<StateData>(someData);
+                    sut.SetDataContainer(statefulContainer);
                     sut.Initialize(stateMachine);
+
+                    statefulContainer.ResetData();
 
                     updateTransitionMock.VerifyNoOtherCalls();
                     fixedUpdateTransitionMock.VerifyNoOtherCalls();
@@ -567,6 +570,8 @@ namespace KDMagical.SUSMachine.Tests
                     var statefulContainer = new StatefulContainer<int>(someData);
                     sut.SetDataContainer(statefulContainer);
                     sut.Initialize(stateMachine);
+
+                    statefulContainer.ResetData();
 
                     Assert.AreEqual(sut.CheckTransitions(TransitionType.Update), States.State1);
 

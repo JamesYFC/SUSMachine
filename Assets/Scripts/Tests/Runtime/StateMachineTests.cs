@@ -228,6 +228,46 @@ namespace KDMagical.SUSMachine.Tests
             }
 
             [Test, AutoMoqData]
+            public void Registration_Stateful_Update_Action_Register_Called(IStateMachineManager manager, States state, StatefulAction<States, int> stateAction)
+            {
+                var managerMock = Mock.Get(manager);
+
+                var sut = new StateMachine<States>(manager)
+                {
+                    [state] = new Stateful<States, int>
+                    {
+                        OnUpdate = stateAction
+                    },
+                };
+
+                sut.Initialize(state);
+                managerMock.Verify(m => m.Register(sut), Times.Once);
+
+                sut.Close();
+                managerMock.Verify(m => m.Deregister(sut), Times.Once);
+            }
+
+            [Test, AutoMoqData]
+            public void Registration_Stateful_Events_Update_Action_Register_Called(IStateMachineManager manager, States state, StatefulAction<States, int> stateAction)
+            {
+                var managerMock = Mock.Get(manager);
+
+                var sut = new StateMachine<States, Events>(manager)
+                {
+                    [state] = new Stateful<States, Events, int>
+                    {
+                        OnUpdate = stateAction
+                    },
+                };
+
+                sut.Initialize(state);
+                managerMock.Verify(m => m.Register(sut), Times.Once);
+
+                sut.Close();
+                managerMock.Verify(m => m.Deregister(sut), Times.Once);
+            }
+
+            [Test, AutoMoqData]
             public void Registration_FixedUpdate_Action_Register_Called(IStateMachineManager manager, States state, StateAction<States> stateAction)
             {
                 var managerMock = Mock.Get(manager);

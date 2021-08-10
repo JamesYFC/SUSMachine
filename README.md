@@ -73,7 +73,7 @@ using KDMagical.SUSMachine;
 
 ## Updating
 
-Unity currently doesn't support updating upm packages from git sources as of 2020.3 (i.e. you will not be notified by version updates, and the update button will not be available.) 
+Unity currently doesn't support updating upm packages from git sources as of 2020.3 (i.e. you will not be notified by version updates, and the update button will not be available.)
 
 However, you can simply reinstall the package by following the installation step above again.
 
@@ -129,7 +129,7 @@ Simply add another generic parameter to `StateMachine` to enable this support.
 
 ```cs
 // without events
-var fsm = new StateMachine<States> { }
+var fsm = new StateMachine<States> { };
 
 // with events
 var fsm = new StateMachine<States, Events>
@@ -138,7 +138,53 @@ var fsm = new StateMachine<States, Events>
     {
         [Events.Event1] = _ => Debug.Log("Event1 Triggered!")
     }
-}
+};
+```
+
+## Stateful Data
+
+To keep track of and modify variables within a state object, use the `Stateful<TStates, TData>` or `Stateful<TStates, TEvents, TData>` classes.
+
+`TData` must be a `struct` type.
+
+When using this class, your actions and transition functions get more parameters related to the data being tracked.
+
+```cs
+var fsm =
+{
+    [States.State1] = new Stateful<States, (string name, int count)>
+    {
+        // names are optional here -- ("Hello", 0) does the same thing.
+        InitialData = (name: "Hello", count: 0),
+
+        OnEnter = (_, data, modify) =>
+        {
+            // deconstruct syntax
+            var (name, count) = data;
+
+            Debug.Log($"Name: {name}, Count: {count}");
+
+            data.count++;
+
+            modify(data);
+        }
+
+        Transitions =
+        {
+            {}
+        }
+    }
+};
+
+var fsm = new Stateful<States, int>
+{
+    [States.State1] = new Stateful<States, Events, int>
+    {
+        // as data is a struct, omitting InitialData will mean it is set to its default value.
+
+        OnEnter = (_, data, __) => Debug.Log("data = " + data) // data = 0
+    }
+};
 ```
 
 ## Transitions
@@ -175,6 +221,8 @@ var stateMachine = new StateMachine<States>
 }
 ```
 
+When using `Stateful`, the `PredicateCondition` can also be written in the form `(stateMachine, data) => bool`.
+
 #### _Complex Syntax_
 
 `{TransitionFunction, TransitionType}`
@@ -205,6 +253,8 @@ Transitions =
     TransitionType.Update
 }
 ```
+
+When using `Stateful`, the `TransitionFunction` can also be written in the form `(stateMachine, data) => States?`.
 
 In some cases, such as below, the compiler can't figure out that the returned type is `States?`.
 
@@ -251,9 +301,11 @@ Transitions =
 Transitions =
 {
     // when the event is triggered, the condition is called. Enters State1 if the condition is true.
-    { someNum > 0, States.State1, Events.Event1 }
+    { _ => someNum > 0, States.State1, Events.Event1 }
 }
 ```
+
+When using `Stateful`, the `PredicateCondition` can also be written in the form `(stateMachine, data) => bool`.
 
 #### _Complex_
 
@@ -275,7 +327,7 @@ Transitions =
 }
 ```
 
-###
+When using `Stateful`, the `TransitionFunction` can also be written in the form `(stateMachine, data) => States?`.
 
 ### Order
 
@@ -343,7 +395,7 @@ fsm.Initialize(States.State1); // stack overflow! AnyState.OnEnter called infini
 
 ## Splitting Out
 
-If you find that your functions get too large to be written in lambda syntax, or for any other reason, you can write them elsewhere -- as long as they have the matching signature `void MyFunc(IStateMachine<MyStates> fsm)`.
+If you find that your functions get too large to be written in lambda syntax, or for any other reason, you can write them elsewhere -- as long as they have the matching signature.
 
 ```cs
 // in state machine init...
@@ -351,10 +403,17 @@ If you find that your functions get too large to be written in lambda syntax, or
     OnEnter = SomeFunc
 }
 
-void SomeFunc(IStateMachine<States> stateMachine)
+void SomeFunc(IStateMachine<States> stateMachine) { }
+```
+
+```cs
+// in state machine init...
+[States.SomeState] = Stateful<States, MyStruct>
 {
-    // ...
+    OnEnter = SomeFunc
 }
+
+void SomeFunc(IStateMachine<States> stateMachine, MyStruct data) { }
 ```
 
 # Manual Initialization & Closing
