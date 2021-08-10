@@ -4,39 +4,18 @@ using System.Collections.Generic;
 
 namespace KDMagical.SUSMachine
 {
-    public enum TransitionType
-    {
-        Update,
-        FixedUpdate,
-        LateUpdate
-    }
-
     /// <summary>
     /// A function that determines if a transition should be made.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns>Null if no transition should be made, and state to transition to if transition should be made.</returns>
-    public delegate T? AutoTransition<T>(IStateMachine<T> fsm) where T : struct, System.Enum;
+    public delegate T? Transition<T>(IStateMachine<T> fsm) where T : struct, System.Enum;
 
-    public class Transitions<TStates> : IEnumerable<AutoTransition<TStates>>
+    public class StatelessTransitions<TStates> : TransitionsBase<TStates, Transition<TStates>>
         where TStates : struct, System.Enum
     {
-        private Dictionary<TransitionType, List<AutoTransition<TStates>>> updateTransitions;
-
-        protected IStateMachine<TStates> StateMachine { get; private set; }
-
-        public void Initialize(IStateMachine<TStates> stateMachine)
-        {
-            this.StateMachine = stateMachine;
-        }
-
-        public void Add(AutoTransition<TStates> transition, TransitionType transitionType = TransitionType.Update) =>
-            (updateTransitions ??= new Dictionary<TransitionType, List<AutoTransition<TStates>>>())
-                .GetOrCreate(transitionType)
-                .Add(transition);
-
         public void Add(Predicate<IStateMachine<TStates>> condition, TStates targetState, TransitionType transitionType = TransitionType.Update) =>
-            (updateTransitions ??= new Dictionary<TransitionType, List<AutoTransition<TStates>>>())
+            UpdateTransitions
                 .GetOrCreate(transitionType)
                 .Add(stateMachine =>
                     condition(stateMachine)
@@ -49,7 +28,7 @@ namespace KDMagical.SUSMachine
         /// </summary>
         /// <param name="transitionType"></param>
         /// <returns>The first non-null state result, or <see langword="null"/> if none.</returns>
-        public TStates? CheckTransitions(TransitionType transitionType)
+        public override TStates? CheckTransitions(TransitionType transitionType)
         {
             if (updateTransitions == null || !updateTransitions.TryGetValue(transitionType, out var transitions))
                 return null;
@@ -63,41 +42,25 @@ namespace KDMagical.SUSMachine
             }
             return null;
         }
-
-        public bool HasUpdateFunctions()
-        {
-            if (updateTransitions != null && updateTransitions.Count > 0)
-            {
-                foreach (var transitions in updateTransitions.Values)
-                {
-                    if (transitions != null && transitions.Count > 0)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => throw new System.NotImplementedException();
-        IEnumerator<AutoTransition<TStates>> IEnumerable<AutoTransition<TStates>>.GetEnumerator() => throw new System.NotImplementedException();
     }
 
-    public class Transitions<TStates, TEvents> : Transitions<TStates>
+    public class StatelessTransitions<TStates, TEvents> : StatelessTransitions<TStates>
         where TStates : struct, System.Enum
         where TEvents : struct, System.Enum
     {
-        private Dictionary<TEvents, List<AutoTransition<TStates>>> eventTransitions;
+        private Dictionary<TEvents, List<Transition<TStates>>> eventTransitions;
+        private Dictionary<TEvents, List<Transition<TStates>>> EventTransitions
+            => eventTransitions ??= new Dictionary<TEvents, List<Transition<TStates>>>();
 
         // complex case
-        public void Add(AutoTransition<TStates> transition, TEvents fsmEvent) =>
-            (eventTransitions ??= new Dictionary<TEvents, List<AutoTransition<TStates>>>())
+        public void Add(Transition<TStates> transition, TEvents fsmEvent) =>
+            EventTransitions
                 .GetOrCreate(fsmEvent)
                 .Add(transition);
 
         // simple case
         public void Add(Predicate<IStateMachine<TStates>> condition, TStates targetState, TEvents fsmEvent) =>
-            (eventTransitions ??= new Dictionary<TEvents, List<AutoTransition<TStates>>>())
+            EventTransitions
                 .GetOrCreate(fsmEvent)
                 .Add(stateMachine =>
                     condition(stateMachine)
@@ -107,7 +70,7 @@ namespace KDMagical.SUSMachine
 
         // super simple (direct) case
         public void Add(TStates state, TEvents fsmEvent) =>
-            (eventTransitions ??= new Dictionary<TEvents, List<AutoTransition<TStates>>>())
+            EventTransitions
                 .GetOrCreate(fsmEvent)
                 .Add(_ => state);
 

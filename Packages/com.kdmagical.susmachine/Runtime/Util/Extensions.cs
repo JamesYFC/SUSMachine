@@ -13,5 +13,15 @@ namespace KDMagical.SUSMachine
             }
             return value;
         }
+
+        public static V GetOrCreate<K, V, N>(this IDictionary<K, V> dict, K key) where N : V, new()
+        {
+            if (!dict.TryGetValue(key, out var value))
+            {
+                value = new N();
+                dict.Add(key, value);
+            }
+            return value;
+        }
     }
 }
