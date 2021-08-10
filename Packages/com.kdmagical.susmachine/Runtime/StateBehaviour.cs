@@ -151,7 +151,7 @@ namespace KDMagical.SUSMachine
         }
     }
 
-    public delegate void DataStateAction<TStates, TData>(IStateMachine<TStates> stateMachine, TData currentData, System.Action<TData> modify)
+    public delegate void StatefulAction<TStates, TData>(IStateMachine<TStates> stateMachine, TData currentData, System.Action<TData> modify)
         where TStates : struct, System.Enum
         where TData : struct;
 
@@ -177,11 +177,11 @@ namespace KDMagical.SUSMachine
         }
 
 
-        public new DataStateAction<TStates, TData> OnEnter { get; set; }
-        public new DataStateAction<TStates, TData> OnExit { get; set; }
-        public new DataStateAction<TStates, TData> OnUpdate { get; set; }
-        public new DataStateAction<TStates, TData> OnFixedUpdate { get; set; }
-        public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
+        public new StatefulAction<TStates, TData> OnEnter { get; set; }
+        public new StatefulAction<TStates, TData> OnExit { get; set; }
+        public new StatefulAction<TStates, TData> OnUpdate { get; set; }
+        public new StatefulAction<TStates, TData> OnFixedUpdate { get; set; }
+        public new StatefulAction<TStates, TData> OnLateUpdate { get; set; }
 
         public override void DoEnter()
             => OnEnter?.Invoke(StateMachine, CurrentData, Modify);
@@ -226,20 +226,20 @@ namespace KDMagical.SUSMachine
         }
 
 
-        private Dictionary<TEvents, DataStateAction<TStates, TData>> onEvents;
+        private Dictionary<TEvents, StatefulAction<TStates, TData>> onEvents;
 
-        public new DataStateAction<TStates, TData> this[TEvents fsmEvent]
+        public new StatefulAction<TStates, TData> this[TEvents fsmEvent]
         {
             set =>
-                (onEvents ??= new Dictionary<TEvents, DataStateAction<TStates, TData>>())
+                (onEvents ??= new Dictionary<TEvents, StatefulAction<TStates, TData>>())
                     .Add(fsmEvent, value);
         }
 
-        public new DataStateAction<TStates, TData> OnEnter { get; set; }
-        public new DataStateAction<TStates, TData> OnExit { get; set; }
-        public new DataStateAction<TStates, TData> OnUpdate { get; set; }
-        public new DataStateAction<TStates, TData> OnFixedUpdate { get; set; }
-        public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
+        public new StatefulAction<TStates, TData> OnEnter { get; set; }
+        public new StatefulAction<TStates, TData> OnExit { get; set; }
+        public new StatefulAction<TStates, TData> OnUpdate { get; set; }
+        public new StatefulAction<TStates, TData> OnFixedUpdate { get; set; }
+        public new StatefulAction<TStates, TData> OnLateUpdate { get; set; }
 
         public override void DoEnter()
             => OnEnter?.Invoke(StateMachine, CurrentData, Modify);

@@ -70,18 +70,18 @@ namespace KDMagical.SUSMachine.Tests
         public class MockStatefulActions<T> where T : struct
         {
 
-            public Mock<DataStateAction<States, T>> Enter { get; } = new Mock<DataStateAction<States, T>>();
-            public Mock<DataStateAction<States, T>> Exit { get; } = new Mock<DataStateAction<States, T>>();
-            public Mock<DataStateAction<States, T>> Update { get; } = new Mock<DataStateAction<States, T>>();
-            public Mock<DataStateAction<States, T>> FixedUpdate { get; } = new Mock<DataStateAction<States, T>>();
-            public Mock<DataStateAction<States, T>> LateUpdate { get; } = new Mock<DataStateAction<States, T>>();
+            public Mock<StatefulAction<States, T>> Enter { get; } = new Mock<StatefulAction<States, T>>();
+            public Mock<StatefulAction<States, T>> Exit { get; } = new Mock<StatefulAction<States, T>>();
+            public Mock<StatefulAction<States, T>> Update { get; } = new Mock<StatefulAction<States, T>>();
+            public Mock<StatefulAction<States, T>> FixedUpdate { get; } = new Mock<StatefulAction<States, T>>();
+            public Mock<StatefulAction<States, T>> LateUpdate { get; } = new Mock<StatefulAction<States, T>>();
 
             public void Deconstruct(
-                out Mock<DataStateAction<States, T>> enter,
-                out Mock<DataStateAction<States, T>> exit,
-                out Mock<DataStateAction<States, T>> update,
-                out Mock<DataStateAction<States, T>> fixedUpdate,
-                out Mock<DataStateAction<States, T>> lateUpdate
+                out Mock<StatefulAction<States, T>> enter,
+                out Mock<StatefulAction<States, T>> exit,
+                out Mock<StatefulAction<States, T>> update,
+                out Mock<StatefulAction<States, T>> fixedUpdate,
+                out Mock<StatefulAction<States, T>> lateUpdate
             )
             {
                 enter = Enter;
@@ -114,14 +114,14 @@ namespace KDMagical.SUSMachine.Tests
         public class MockStatefulEventActions<T> where T : struct
         {
 
-            public Mock<DataStateAction<States, T>> Event1Action { get; } = new Mock<DataStateAction<States, T>>();
-            public Mock<DataStateAction<States, T>> Event2Action { get; } = new Mock<DataStateAction<States, T>>();
-            public Mock<DataStateAction<States, T>> Event3Action { get; } = new Mock<DataStateAction<States, T>>();
+            public Mock<StatefulAction<States, T>> Event1Action { get; } = new Mock<StatefulAction<States, T>>();
+            public Mock<StatefulAction<States, T>> Event2Action { get; } = new Mock<StatefulAction<States, T>>();
+            public Mock<StatefulAction<States, T>> Event3Action { get; } = new Mock<StatefulAction<States, T>>();
 
             public void Deconstruct(
-                out Mock<DataStateAction<States, T>> event1Action,
-                out Mock<DataStateAction<States, T>> event2Action,
-                out Mock<DataStateAction<States, T>> event3Action
+                out Mock<StatefulAction<States, T>> event1Action,
+                out Mock<StatefulAction<States, T>> event2Action,
+                out Mock<StatefulAction<States, T>> event3Action
             )
             {
                 event1Action = Event1Action;

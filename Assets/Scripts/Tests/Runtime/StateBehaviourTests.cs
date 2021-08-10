@@ -284,7 +284,7 @@ namespace KDMagical.SUSMachine.Tests
                     public void Modified_Data_Received_By_Callback(
                         int initialData,
                         int newData,
-                        Mock<DataStateAction<States, int>> actionMock,
+                        Mock<StatefulAction<States, int>> actionMock,
                         IStateMachine<States> stateMachine)
                     {
                         var sut = new Stateful<States, int>
@@ -427,7 +427,7 @@ namespace KDMagical.SUSMachine.Tests
                         int initialData,
                         int newData,
                         Events someEvent,
-                        Mock<DataStateAction<States, int>> actionMock,
+                        Mock<StatefulAction<States, int>> actionMock,
                         IStateMachine<States> stateMachine)
                     {
                         var sut = new Stateful<States, Events, int>
