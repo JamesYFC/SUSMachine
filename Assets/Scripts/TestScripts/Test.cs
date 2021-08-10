@@ -49,19 +49,24 @@ public class Test : MonoBehaviour
                 }
             },
 
-            [States.Blocking] = new Stateful<States, int>
+            [States.Blocking] = new Stateful<States, (int frames, string someString)>
             {
-                InitialData = 0,
+                InitialData =
+                (
+                    frames: 0,
+                    someString: ""
+                ),
+
                 OnUpdate = (_, data, modify) =>
                 {
                     // every frame it ups count by 1
-                    modify(data + 1);
-                    Debug.Log("data: " + data);
+                    modify((frames: data.frames + 1, someString: data.someString));
+                    Debug.Log("data: " + data.frames);
                 },
 
                 Transitions =
                 {
-                    {(_, data) => data > blockFrames, States.Idle}
+                    {(_, data) => data.frames > blockFrames, States.Idle}
                 }
             }
         };

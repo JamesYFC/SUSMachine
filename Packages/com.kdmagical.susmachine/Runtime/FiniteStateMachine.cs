@@ -204,6 +204,7 @@ namespace KDMagical.SUSMachine
 
         protected override IEnumerable<IStateObject<TStates>> StateBehaviours => stateBehaviours.Values;
 
+        // this must be Stateless<T1, T2> if we want to default to Stateless<T1, T2>, omitting the need for a constructor (= {} vs. = new Stateless<T1, T2>{})
         public Stateless<TStates, TEvents> this[TStates state]
         {
             get => stateBehaviours.GetOrCreate(state);

@@ -20,7 +20,7 @@ namespace KDMagical.SUSMachine
         where TStates : struct, System.Enum
         where TEvents : struct, System.Enum
     {
-
+        TStates? TriggerEventAndGetTransition(TEvents fsmEvent);
     }
 
     public delegate void StateAction<T>(IStateMachine<T> stateMachine) where T : struct, System.Enum;
@@ -134,6 +134,14 @@ namespace KDMagical.SUSMachine
 
         public TData CurrentData;
 
+        public StatefulContainer() { }
+
+        public StatefulContainer(TData initialData)
+        {
+            InitialData = initialData;
+            CurrentData = InitialData;
+        }
+
         public void Modify(TData newVal)
             => CurrentData = newVal;
 
@@ -147,6 +155,9 @@ namespace KDMagical.SUSMachine
         where TStates : struct, System.Enum
         where TData : struct;
 
+    /// it seems we're forced to inherit from Stateless here and live with a bunch of shadowed members.
+    /// This is because I want the api in StateMachine<T> where you don't have to type the constructor for Stateless<T> by default.
+    /// Because indexers for a given parameter type can only be set for one type, we can't overload stateMachine[State] = new Stateful<T1, T2> without inheriting from Stateless<T>
     public class Stateful<TStates, TData> : Stateless<TStates>
         where TStates : struct, System.Enum
         where TData : struct
@@ -157,14 +168,14 @@ namespace KDMagical.SUSMachine
 
         protected override ITransitions<TStates> TransitionsBase => Transitions;
 
-        private StatefulContainer<TData> Data = new StatefulContainer<TData>();
-
-        protected System.Action<TData> Modify { get; private set; }
-
+        private StatefulContainer<TData> data = new StatefulContainer<TData>();
+        protected System.Action<TData> Modify => data.Modify;
+        public TData CurrentData => data.CurrentData;
         public TData InitialData
         {
-            set => Data.InitialData = value;
+            set => data.InitialData = value;
         }
+
 
         public new DataStateAction<TStates, TData> OnEnter { get; set; }
         public new DataStateAction<TStates, TData> OnExit { get; set; }
@@ -173,24 +184,23 @@ namespace KDMagical.SUSMachine
         public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
 
         public override void DoEnter()
-            => OnEnter?.Invoke(StateMachine, Data.CurrentData, Modify);
+            => OnEnter?.Invoke(StateMachine, CurrentData, Modify);
         public override void DoExit()
         {
-            OnExit?.Invoke(StateMachine, Data.CurrentData, Modify);
-            Data.ResetData();
+            OnExit?.Invoke(StateMachine, CurrentData, Modify);
+            data.ResetData();
         }
         public override void DoUpdate()
-            => OnUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
+            => OnUpdate?.Invoke(StateMachine, CurrentData, Modify);
         public override void DoFixedUpdate()
-            => OnFixedUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
+            => OnFixedUpdate?.Invoke(StateMachine, CurrentData, Modify);
         public override void DoLateUpdate()
-            => OnLateUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
+            => OnLateUpdate?.Invoke(StateMachine, CurrentData, Modify);
 
         public override void Initialize(IStateMachine<TStates> stateMachine)
         {
-            Data.ResetData();
-            Modify = Data.Modify;
-            transitions.SetDataContainer(Data);
+            data.ResetData();
+            Transitions.SetDataContainer(data);
             base.Initialize(stateMachine);
         }
     }
@@ -206,13 +216,23 @@ namespace KDMagical.SUSMachine
 
         protected override ITransitions<TStates> TransitionsBase => Transitions;
 
-        private StatefulContainer<TData> Data;
+        private StatefulContainer<TData> data = new StatefulContainer<TData>();
 
-        protected System.Action<TData> Modify { get; private set; }
-
+        protected System.Action<TData> Modify => data.Modify;
+        public TData CurrentData => data.CurrentData;
         public TData InitialData
         {
-            set => Data.InitialData = value;
+            set => data.InitialData = value;
+        }
+
+
+        private Dictionary<TEvents, DataStateAction<TStates, TData>> onEvents;
+
+        public new DataStateAction<TStates, TData> this[TEvents fsmEvent]
+        {
+            set =>
+                (onEvents ??= new Dictionary<TEvents, DataStateAction<TStates, TData>>())
+                    .Add(fsmEvent, value);
         }
 
         public new DataStateAction<TStates, TData> OnEnter { get; set; }
@@ -222,25 +242,32 @@ namespace KDMagical.SUSMachine
         public new DataStateAction<TStates, TData> OnLateUpdate { get; set; }
 
         public override void DoEnter()
-            => OnEnter?.Invoke(StateMachine, Data.CurrentData, Modify);
+            => OnEnter?.Invoke(StateMachine, CurrentData, Modify);
         public override void DoExit()
         {
-            OnExit?.Invoke(StateMachine, Data.CurrentData, Modify);
-            Data.ResetData();
+            OnExit?.Invoke(StateMachine, CurrentData, Modify);
+            data.ResetData();
         }
         public override void DoUpdate()
-            => OnUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
+            => OnUpdate?.Invoke(StateMachine, CurrentData, Modify);
         public override void DoFixedUpdate()
-            => OnFixedUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
+            => OnFixedUpdate?.Invoke(StateMachine, CurrentData, Modify);
         public override void DoLateUpdate()
-            => OnLateUpdate?.Invoke(StateMachine, Data.CurrentData, Modify);
+            => OnLateUpdate?.Invoke(StateMachine, CurrentData, Modify);
 
         public override void Initialize(IStateMachine<TStates> stateMachine)
         {
-            Data.ResetData();
-            Modify = Data.Modify;
-            transitions.SetDataContainer(Data);
+            data.ResetData();
+            Transitions.SetDataContainer(data);
             base.Initialize(stateMachine);
+        }
+
+        public override TStates? TriggerEventAndGetTransition(TEvents fsmEvent)
+        {
+            if (onEvents != null && onEvents.TryGetValue(fsmEvent, out var action))
+                action(StateMachine, CurrentData, Modify);
+
+            return Transitions.CheckEventTransitions(fsmEvent);
         }
     }
 }
