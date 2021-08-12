@@ -171,7 +171,10 @@ var fsm =
 
         Transitions =
         {
-            {}
+            { // transitions to State2 on the first frame where count reaches 2
+                (_, data) => data.count >= 2, 
+                States.State2
+            }
         }
     }
 };
