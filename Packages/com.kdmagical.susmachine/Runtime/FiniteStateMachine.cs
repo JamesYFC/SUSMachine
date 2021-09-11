@@ -17,6 +17,7 @@ namespace KDMagical.SUSMachine
     public interface IStateMachine<T> : IStateMachine where T : struct, System.Enum
     {
         T CurrentState { get; }
+        T? NextState { get; }
         void Initialize(T initialState, GameObject closeOnDestroy = null);
         void SetState(T newState);
     }
@@ -40,6 +41,8 @@ namespace KDMagical.SUSMachine
         protected IStateMachineManager stateMachineManager { get; private set; }
 
         protected bool HasUpdateFunctions { get; private set; }
+
+        public T? NextState { get; private set; }
 
         public StateMachineBase() : this(StateMachineManager.Instance) { }
 
@@ -152,7 +155,7 @@ namespace KDMagical.SUSMachine
         /// <summary>
         /// <para>Sets the current state of the state machine to <paramref name="newState"/>.</para>
         /// 
-        /// <para>Avoid using this method in any StateBehaviour action, and <b>**DO NOT call this in a StateBehaviour's OnEnter() or OnExit()!**</b></para>
+        /// <para><b>**BE CAREFUL when calling this in a StateBehaviour's OnEnter() or OnExit()!**</b></para>
         /// </summary>
         /// <remarks>
         /// It is recommended to use the built-in events and transitions support over this function for most use cases.
@@ -160,7 +163,9 @@ namespace KDMagical.SUSMachine
         /// <param name="newState"></param>
         public void SetState(T newState)
         {
+            NextState = newState;
             DoExit();
+            NextState = null;
             CurrentState = newState;
             currentStateEnterTime = Time.time;
             DoEnter();

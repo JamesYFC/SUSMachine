@@ -415,6 +415,61 @@ namespace KDMagical.SUSMachine.Tests
 
                 managerMock.Verify(m => m.Deregister(sut), Times.Once);
             }
+
+            [Test, AutoMoqData]
+            public void NextState_AnyState_Set_Correctly(
+                IStateMachineManager manager,
+                StateAction<States> stateAction,
+                States nextState
+            )
+            {
+                var sut = new StateMachine<States>(manager)
+                {
+                    AnyState =
+                    {
+                        OnEnter = fsm => Assert.IsNull(fsm.NextState),
+                        OnExit = fsm => Assert.AreEqual(nextState, fsm.NextState)
+                    }
+                };
+
+                sut.Initialize(States.State1);
+                sut.SetState(nextState);
+            }
+
+            [Test, AutoMoqData]
+            public void NextState_Set_Correctly(
+                IStateMachineManager manager,
+                StateAction<States> stateAction
+            )
+            {
+                var sut = new StateMachine<States>(manager)
+                {
+                    AnyState =
+                    {
+                        OnEnter = fsm => Assert.IsNull(fsm.NextState)
+                    },
+
+                    [States.State1] =
+                    {
+                        OnExit = fsm => Assert.AreEqual(States.State2, fsm.NextState)
+                    },
+
+                    [States.State2] =
+                    {
+                        OnExit = fsm => Assert.AreEqual(States.State3, fsm.NextState)
+                    },
+
+                    [States.State3] =
+                    {
+                        OnExit = fsm => Assert.IsNull(fsm.NextState)
+                    }
+                };
+
+                sut.Initialize(States.State1);
+                sut.SetState(States.State2);
+                sut.SetState(States.State3);
+                sut.Close();
+            }
         }
     }
 }
