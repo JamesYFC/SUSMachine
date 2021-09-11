@@ -22,7 +22,8 @@ private void Awake()
         AnyState =
         {
             OnEnter = fsm => Debug.Log("Entering state " + fsm.CurrentState),
-            OnExit = fsm => Debug.Log("Exiting state " + fsm.CurrentState)
+            // NextState is null when not exiting to a specific state
+            OnExit = fsm => Debug.Log("Exiting state " + fsm.CurrentState + " to " + fsm.NextState)
         },
 
         [States.Normal] =
@@ -172,7 +173,7 @@ var fsm =
         Transitions =
         {
             { // transitions to State2 on the first frame where count reaches 2
-                (_, data) => data.count >= 2, 
+                (_, data) => data.count >= 2,
                 States.State2
             }
         }
