@@ -18,7 +18,7 @@ namespace KDMagical.SUSMachine
     {
         T CurrentState { get; }
         T? NextState { get; }
-        void Initialize(T initialState, GameObject closeOnDestroy = null);
+        IStateMachine<T> Initialize(T initialState, GameObject closeOnDestroy = null);
         void SetState(T newState);
     }
 
@@ -56,7 +56,7 @@ namespace KDMagical.SUSMachine
         /// </summary>
         /// <param name="initialState"></param>
         /// <param name="closeOnDestroy"></param>
-        public void Initialize(T initialState, GameObject closeOnDestroy = null)
+        public StateMachineBase<T> Initialize(T initialState, GameObject closeOnDestroy = null)
         {
             HasUpdateFunctions = CheckForUpdateFunctions();
             if (HasUpdateFunctions)
@@ -79,7 +79,12 @@ namespace KDMagical.SUSMachine
             CurrentState = initialState;
             currentStateEnterTime = Time.time;
             DoEnter();
+
+            return this;
         }
+
+        IStateMachine<T> IStateMachine<T>.Initialize(T initialState, GameObject closeOnDestroy)
+            => Initialize(initialState, closeOnDestroy);
 
         /// <summary>
         /// Returns false if no update loop actions or transitions are set on any behaviours in this state machine.
@@ -198,6 +203,12 @@ namespace KDMagical.SUSMachine
         public StateMachine() : base() { }
 
         public StateMachine(IStateMachineManager stateMachineManager) : base(stateMachineManager) { }
+
+        public new StateMachine<T> Initialize(T initialState, GameObject closeOnDestroy = null)
+        {
+            base.Initialize(initialState, closeOnDestroy);
+            return this;
+        }
     }
 
     public class StateMachine<TStates, TEvents> : StateMachineBase<TStates>, IEventTriggerable<TEvents>
@@ -231,6 +242,12 @@ namespace KDMagical.SUSMachine
         public StateMachine() : base() { }
 
         public StateMachine(IStateMachineManager stateMachineManager) : base(stateMachineManager) { }
+
+        public new StateMachine<TStates, TEvents> Initialize(TStates initialState, GameObject closeOnDestroy = null)
+        {
+            base.Initialize(initialState, closeOnDestroy);
+            return this;
+        }
 
         public void TriggerEvent(TEvents fsmEvent)
         {
