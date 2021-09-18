@@ -185,7 +185,6 @@ var fsm = new Stateful<States, int>
     [States.State1] = new Stateful<States, Events, int>
     {
         // as data is a struct, omitting InitialData will mean it is set to its default value.
-
         OnEnter = (_, data, __) => Debug.Log("data = " + data) // data = 0
     }
 };
