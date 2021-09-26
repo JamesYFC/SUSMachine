@@ -53,13 +53,13 @@ namespace KDMagical.SUSMachine
             => eventTransitions ??= new Dictionary<TEvents, List<Transition<TStates>>>();
 
         // complex case
-        public void Add(Transition<TStates> transition, TEvents fsmEvent) =>
+        public void Add(TEvents fsmEvent, Transition<TStates> transition) =>
             EventTransitions
                 .GetOrCreate(fsmEvent)
                 .Add(transition);
 
         // simple case
-        public void Add(Predicate<IStateMachine<TStates>> condition, TStates targetState, TEvents fsmEvent) =>
+        public void Add(TEvents fsmEvent, Predicate<IStateMachine<TStates>> condition, TStates targetState) =>
             EventTransitions
                 .GetOrCreate(fsmEvent)
                 .Add(stateMachine =>
@@ -69,7 +69,7 @@ namespace KDMagical.SUSMachine
                 );
 
         // super simple (direct) case
-        public void Add(TStates state, TEvents fsmEvent) =>
+        public void Add(TEvents fsmEvent, TStates state) =>
             EventTransitions
                 .GetOrCreate(fsmEvent)
                 .Add(_ => state);

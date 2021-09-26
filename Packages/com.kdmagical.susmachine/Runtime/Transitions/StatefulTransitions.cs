@@ -67,18 +67,18 @@ namespace KDMagical.SUSMachine
             eventTransitions ??= new Dictionary<TEvents, List<StatefulTransition<TStates, TData>>>();
 
         // complex case
-        public void Add(StatefulTransition<TStates, TData> transition, TEvents fsmEvent) =>
+        public void Add(TEvents fsmEvent, StatefulTransition<TStates, TData> transition) =>
             (eventTransitions ??= new Dictionary<TEvents, List<StatefulTransition<TStates, TData>>>())
                 .GetOrCreate(fsmEvent)
                 .Add(transition);
 
-        public void Add(Transition<TStates> transition, TEvents fsmEvent) =>
+        public void Add(TEvents fsmEvent, Transition<TStates> transition) =>
         (eventTransitions ??= new Dictionary<TEvents, List<StatefulTransition<TStates, TData>>>())
             .GetOrCreate(fsmEvent)
             .Add(transition.Convert<TStates, TData>());
 
         // simple case
-        public void Add(Predicate<IStateMachine<TStates>, TData> condition, TStates targetState, TEvents fsmEvent) =>
+        public void Add(TEvents fsmEvent, Predicate<IStateMachine<TStates>, TData> condition, TStates targetState) =>
             (eventTransitions ??= new Dictionary<TEvents, List<StatefulTransition<TStates, TData>>>())
                 .GetOrCreate(fsmEvent)
                 .Add((stateMachine, stateData) =>
@@ -87,7 +87,7 @@ namespace KDMagical.SUSMachine
                         : (TStates?)null
                 );
 
-        public void Add(Predicate<IStateMachine<TStates>> condition, TStates targetState, TEvents fsmEvent) =>
+        public void Add(TEvents fsmEvent, Predicate<IStateMachine<TStates>> condition, TStates targetState) =>
             (eventTransitions ??= new Dictionary<TEvents, List<StatefulTransition<TStates, TData>>>())
                 .GetOrCreate(fsmEvent)
                 .Add((stateMachine, _) =>
@@ -97,7 +97,7 @@ namespace KDMagical.SUSMachine
                 );
 
         // super simple (direct) case
-        public void Add(TStates state, TEvents fsmEvent) =>
+        public void Add(TEvents fsmEvent, TStates state) =>
             (eventTransitions ??= new Dictionary<TEvents, List<StatefulTransition<TStates, TData>>>())
                 .GetOrCreate(fsmEvent)
                 .Add((_, __) => state);

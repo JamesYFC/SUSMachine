@@ -196,7 +196,7 @@ namespace KDMagical.SUSMachine.Tests
                         OnExit = stateAction,
 
                         Transitions = {
-                            {States.State1, Events.Event1}
+                            {Events.Event1, States.State1}
                         }
                     }
                 };
@@ -484,12 +484,12 @@ namespace KDMagical.SUSMachine.Tests
                     AnyState =
                     {
                         [fsmEvent] = shouldBeCalledActionMock.Object,
-                        Transitions = {{States.State3, fsmEvent}}
+                        Transitions = {{fsmEvent, States.State3}}
                     },
 
                     [States.State1] =
                     {
-                        Transitions = {{States.State2, fsmEvent}}
+                        Transitions = {{fsmEvent, States.State2}}
                     },
 
                     [States.State3] =

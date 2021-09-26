@@ -285,26 +285,26 @@ These are only run when the event is triggered, directly after any event actions
 
 #### _Direct_
 
-`{State, Event}`
+`{Event, State}`
 
-Enters the specified state when the event is called.
+When the event is called, enters the specified state.
 
 ```cs
 Transitions =
 {
-    { States.State1, Events.Event1 }
+    { Events.Event1, States.State1 }
 }
 ```
 
 #### _Simple_
 
-`{PredicateCondition, State, Event}`
+`{Event, PredicateCondition, State}`
 
 ```cs
 Transitions =
 {
     // when the event is triggered, the condition is called. Enters State1 if the condition is true.
-    { _ => someNum > 0, States.State1, Events.Event1 }
+    { Events.Event1, _ => someNum > 0, States.State1 }
 }
 ```
 
@@ -312,21 +312,21 @@ When using `Stateful`, the `PredicateCondition` can also be written in the form 
 
 #### _Complex_
 
-`{TransitionFunction, Event}`
+`{Event, TransitionFunction}`
 
 Allows you to define a function where you can return any state or `null`, allowing you to set up several conditions in the same place.
 
 ```cs
 Transitions =
 {
+    Events.Event1,
     _ => someNum switch
     {
         1 => States.State1,
         2 => States.State2,
         var x when x >= 3 => States.State3,
         _ => null
-    },
-    Events.Event1
+    }
 }
 ```
 

@@ -166,7 +166,7 @@ namespace KDMagical.SUSMachine.Tests
                     States? expectedState,
                     IStateMachine<States> stateMachine)
                 {
-                    var sut = new StatelessTransitions<States, Events> { { States.State1, Events.Event1 } };
+                    var sut = new StatelessTransitions<States, Events> { { Events.Event1, States.State1 } };
 
                     sut.Initialize(stateMachine);
 
@@ -185,10 +185,10 @@ namespace KDMagical.SUSMachine.Tests
                     IStateMachine<States> stateMachine)
                 {
                     var sut = new StatelessTransitions<States, Events> { {
-                    _ => conditionShouldPass,
-                    States.State1,
-                    Events.Event1
-                } };
+                        Events.Event1,
+                        _ => conditionShouldPass,
+                        States.State1
+                    } };
 
                     sut.Initialize(stateMachine);
 
@@ -208,16 +208,17 @@ namespace KDMagical.SUSMachine.Tests
                     States? expectedState,
                     IStateMachine<States> stateMachine)
                 {
-                    var sut = new StatelessTransitions<States, Events> { {
-                    _ => num switch
-                    {
-                        1 => States.State1,
-                        2 => States.State2,
-                        var x when x >= 3 => States.State3,
-                        _ => null
-                    },
-                    Events.Event1
-                } };
+                    var sut = new StatelessTransitions<States, Events>
+                    {{
+                        Events.Event1,
+                        _ => num switch
+                        {
+                            1 => States.State1,
+                            2 => States.State2,
+                            var x when x >= 3 => States.State3,
+                            _ => null
+                        }
+                    }};
 
                     sut.Initialize(stateMachine);
 
@@ -237,10 +238,10 @@ namespace KDMagical.SUSMachine.Tests
                     IStateMachine<States> stateMachine)
                 {
                     var sut = new StatelessTransitions<States, Events> {
-                    {States.State1, Events.Event1},
-                    {_ => num > 0, States.State2, Events.Event1}, // event1 should never return State2
-                    {_ => num > 0, States.State3, Events.Event2},
-                    {_ => num % 2 == 0 ? States.State2 : (States?)null, Events.Event2}
+                    {Events.Event1, States.State1},
+                    {Events.Event1, _ => num > 0, States.State2}, // event1 should never return State2
+                    {Events.Event2, _ => num > 0, States.State3},
+                    {Events.Event2, _ => num % 2 == 0 ? States.State2 : (States?)null}
                 };
 
                     sut.Initialize(stateMachine);
@@ -465,7 +466,7 @@ namespace KDMagical.SUSMachine.Tests
                         IStateMachine<States> stateMachine,
                         StateData someData)
                     {
-                        var sut = new StatefulTransitions<States, Events, StateData> { { States.State1, Events.Event1 } };
+                        var sut = new StatefulTransitions<States, Events, StateData> { { Events.Event1, States.State1 } };
 
                         sut.SetDataContainer(new StatefulContainer<StateData>(someData));
                         sut.Initialize(stateMachine);
@@ -485,11 +486,12 @@ namespace KDMagical.SUSMachine.Tests
                         IStateMachine<States> stateMachine,
                         StateData someData)
                     {
-                        var sut = new StatefulTransitions<States, Events, StateData> { {
-                        _ => conditionShouldPass,
-                        States.State1,
-                        Events.Event1
-                    } };
+                        var sut = new StatefulTransitions<States, Events, StateData>
+                        {{
+                            Events.Event1,
+                            _ => conditionShouldPass,
+                            States.State1
+                        }};
 
                         sut.SetDataContainer(new StatefulContainer<StateData>(someData));
                         sut.Initialize(stateMachine);
@@ -511,16 +513,17 @@ namespace KDMagical.SUSMachine.Tests
                         IStateMachine<States> stateMachine,
                         StateData someData)
                     {
-                        var sut = new StatefulTransitions<States, Events, StateData> { {
-                        _ => num switch
-                        {
-                            1 => States.State1,
-                            2 => States.State2,
-                            var x when x >= 3 => States.State3,
-                            _ => null
-                        },
-                        Events.Event1
-                    } };
+                        var sut = new StatefulTransitions<States, Events, StateData>
+                        {{
+                            Events.Event1,
+                            _ => num switch
+                            {
+                                1 => States.State1,
+                                2 => States.State2,
+                                var x when x >= 3 => States.State3,
+                                _ => null
+                            }
+                        }};
 
                         sut.SetDataContainer(new StatefulContainer<StateData>(someData));
                         sut.Initialize(stateMachine);
@@ -542,10 +545,10 @@ namespace KDMagical.SUSMachine.Tests
                         StateData someData)
                     {
                         var sut = new StatefulTransitions<States, Events, StateData> {
-                        {States.State1, Events.Event1},
-                        {_ => num > 0, States.State2, Events.Event1}, // event1 should never return State2
-                        {_ => num > 0, States.State3, Events.Event2},
-                        {_ => num % 2 == 0 ? States.State2 : (States?)null, Events.Event2}
+                        {Events.Event1, States.State1},
+                        {Events.Event1, _ => num > 0, States.State2}, // event1 should never return State2
+                        {Events.Event2, _ => num > 0, States.State3},
+                        {Events.Event2, _ => num % 2 == 0 ? States.State2 : (States?)null}
                     };
 
                         sut.SetDataContainer(new StatefulContainer<StateData>(someData));

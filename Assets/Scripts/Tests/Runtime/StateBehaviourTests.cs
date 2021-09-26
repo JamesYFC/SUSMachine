@@ -161,7 +161,7 @@ namespace KDMagical.SUSMachine.Tests
                     {
                         Transitions =
                         {
-                            {States.State1, Events.Event1}
+                            {Events.Event1, States.State1}
                         }
                     };
 
@@ -247,7 +247,7 @@ namespace KDMagical.SUSMachine.Tests
                         {
                             Transitions =
                         {
-                            {States.State1, Events.Event1}
+                            {Events.Event1, States.State1}
                         }
                         };
 

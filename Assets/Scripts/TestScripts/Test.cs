@@ -101,11 +101,11 @@ public class Test : MonoBehaviour
                     // complex with data
                     {(fsm, data) => TestStates.A},
                     // simple omit data
-                    {_ => true, TestStates.B, TestEvents.X},
+                    {TestEvents.X, _ => true, TestStates.B},
                     // simple with data
-                    {(_, data) => true, TestStates.B, TestEvents.X},
+                    {TestEvents.X, (_, data) => true, TestStates.B},
                     // super simple
-                    {TestStates.B, TestEvents.Y}
+                    {TestEvents.Y, TestStates.B}
                 }
             }
         };

@@ -168,7 +168,6 @@ namespace KDMagical.SUSMachine
             set => data.InitialData = value;
         }
 
-
         public new StatefulAction<TStates, TData> OnEnter { get; set; }
         public new StatefulAction<TStates, TData> OnExit { get; set; }
         public new StatefulAction<TStates, TData> OnUpdate { get; set; }
