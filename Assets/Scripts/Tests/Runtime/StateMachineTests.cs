@@ -470,6 +470,43 @@ namespace KDMagical.SUSMachine.Tests
                 sut.SetState(States.State3);
                 sut.Close();
             }
+
+            [Test, AutoMoqData]
+            public void Events_Called_Before_Specific_State_Transition(
+                IStateMachineManager manager,
+                Mock<StateAction<States>> shouldBeCalledActionMock,
+                Mock<StateAction<States>> shouldNotBeCalledActionMock,
+                Events fsmEvent
+            )
+            {
+                var sut = new StateMachine<States, Events>
+                {
+                    AnyState =
+                    {
+                        [fsmEvent] = shouldBeCalledActionMock.Object,
+                        Transitions = {{States.State3, fsmEvent}}
+                    },
+
+                    [States.State1] =
+                    {
+                        Transitions = {{States.State2, fsmEvent}}
+                    },
+
+                    [States.State3] =
+                    {
+                        OnEnter = shouldNotBeCalledActionMock.Object
+                    }
+                };
+
+                sut.Initialize(States.State1);
+                sut.TriggerEvent(fsmEvent);
+
+                shouldNotBeCalledActionMock.VerifyNoOtherCalls();
+
+                shouldBeCalledActionMock.Verify(a => a(sut), Times.Once);
+
+                Assert.AreEqual(States.State2, sut.CurrentState);
+            }
         }
     }
 }

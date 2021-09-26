@@ -251,16 +251,17 @@ namespace KDMagical.SUSMachine
 
         public void TriggerEvent(TEvents fsmEvent)
         {
-            var nextState = CurrentStateBehaviour.TriggerEventAndGetTransition(fsmEvent);
-            if (nextState != null)
-            {
-                SetState(nextState.Value);
-                return;
-            }
+            var anyStateNextState = anyState?.TriggerEventAndGetTransition(fsmEvent);
+            var behaviourNextState = CurrentStateBehaviour.TriggerEventAndGetTransition(fsmEvent);
 
-            nextState = anyState?.TriggerEventAndGetTransition(fsmEvent);
-            if (nextState != null)
-                SetState(nextState.Value);
+            if (behaviourNextState != null)
+            {
+                SetState(behaviourNextState.Value);
+            }
+            else if (anyStateNextState != null)
+            {
+                SetState(anyStateNextState.Value);
+            }
         }
     }
 }

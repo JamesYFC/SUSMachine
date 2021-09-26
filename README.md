@@ -95,7 +95,7 @@ The available actions are:
 - `OnLateUpdate`
 - `[EventEnum.EventName]` (when events are enabled)
 
-A StateMachine can contain a state object for each member of the states enum, plus `AnyState`, whose actions are called before any specific state. AnyState's transitions take lower priority than a specific state object's transitions.
+A StateMachine can contain a state object for each member of the states enum, plus `AnyState`, whose actions are called before any specific state's. AnyState's transitions take lower priority than specific state object's transitions.
 
 ```cs
 var fsm = new StateMachine<States>
