@@ -10,6 +10,8 @@ Supports Unity 2020.2 and up.
 enum States { Normal, Blocking }
 enum Events { Attacked }
 
+int lives = 3;
+
 [SerializeField]
 float blockTime = 2;
 
@@ -79,6 +81,11 @@ Unity currently doesn't support updating upm packages from git sources as of 202
 However, you can simply reinstall the package by following the installation step above again.
 
 The existing version of this package should be overwritten by the new version.
+
+# Noteworthy Changes
+
+- **v0.9.0** - In transitions with events, the event parameter is now first in the order.
+  e.g. `{States.State1, Events.Event1}` is now `{Events.Event1, States.State1}`
 
 # State Objects
 
