@@ -23,14 +23,14 @@ private void Awake()
     {
         AnyState =
         {
-            OnEnter = fsm => Debug.Log("Entering state " + fsm.CurrentState),
+            OnEnter = fsm => Debug.Log($"Entering state {fsm.CurrentState}"),
             // NextState is null when not exiting to a specific state
-            OnExit = fsm => Debug.Log("Exiting state " + fsm.CurrentState + " to " + fsm.NextState)
+            OnExit = fsm => Debug.Log($"Exiting state {fsm.CurrentState} to {fsm.NextState}")
         },
 
         [States.Normal] =
         {
-            OnUpdate = fsm => Debug.Log("Time idling: " + fsm.TimeInState),
+            OnUpdate = fsm => Debug.Log($"Time idling: {fsm.TimeInState}"),
 
             [Events.Attacked] = _ => health--,
 
