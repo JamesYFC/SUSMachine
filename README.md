@@ -1,6 +1,6 @@
 # SUSMachine - a Simple Unity State Machine
 
-A state machine implementation with a quick, easy and nice to use API - no reflection or string names, no need to make a million subclasses.
+A state machine implementation with a quick, easy and nice to use API - no reflection or string names, no need to write any subclasses.
 
 Supports Unity 2020.2 and up.
 
