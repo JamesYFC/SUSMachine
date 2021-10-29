@@ -1,6 +1,6 @@
 # SUSMachine - a Simple Unity State Machine
 
-A state machine implementation with a quick, easy and nice to use API - no reflection or string names, no need to write any subclasses.
+A state machine implementation with a quick, easy and nice to use API - no reflection or string names, no need to inherit anything.
 
 Supports Unity 2020.2 and up.
 
@@ -24,7 +24,7 @@ private void Awake()
         AnyState =
         {
             OnEnter = fsm => Debug.Log($"Entering state {fsm.CurrentState}"),
-            // NextState is null when not exiting to a specific state
+            
             OnExit = fsm => Debug.Log($"Exiting state {fsm.CurrentState} to {fsm.NextState}")
         },
 
@@ -53,6 +53,7 @@ private void Awake()
     /// Initialize can be called at any time when you're ready -- not just in Awake().
     /// By supplying this gameObject into the second parameter,
     /// the state machine will autmatically Close() when the gameObject is destroyed.
+    /// Note: Initialization calls Enter() and Closing calls Exit().
     stateMachine.Initialize(States.Idle, this.gameObject);
 }
 
