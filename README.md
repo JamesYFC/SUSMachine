@@ -32,7 +32,7 @@ private void Awake()
         {
             OnUpdate = fsm => Debug.Log($"Time idling: {fsm.TimeInState}"),
 
-            [Events.Attacked] = _ => health--,
+            [Events.Attacked] = _ => lives--,
 
             Transitions = {
                 // in this state, check in update for space press. enter blocking state if true
