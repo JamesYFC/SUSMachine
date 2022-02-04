@@ -150,6 +150,8 @@ var fsm = new StateMachine<States, Events>
 };
 ```
 
+You can then trigger these events with `fsm.TriggerEvent(TEvents eventToTrigger)`.
+
 ## Stateful Data
 
 To keep track of and modify variables within a state object, use the `Stateful<TStates, TData>` or `Stateful<TStates, TEvents, TData>` classes.
