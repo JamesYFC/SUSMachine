@@ -53,6 +53,7 @@ private void Awake()
     /// Initialize can be called at any time when you're ready -- not just in Awake().
     /// By supplying this gameObject into the second parameter,
     /// the state machine will autmatically Close() when the gameObject is destroyed.
+    /// Otherwise, you may want to call Close() in OnDestroy(), OnDisable() etc.
     /// Note: Initialization calls Enter() and Closing calls Exit().
     stateMachine.Initialize(States.Idle, this.gameObject);
 }
