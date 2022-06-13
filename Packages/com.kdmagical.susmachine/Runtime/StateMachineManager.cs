@@ -11,13 +11,19 @@ namespace KDMagical.SUSMachine
 
     public class StateMachineManager : SingletonMonoBehaviour<StateMachineManager>, IStateMachineManager
     {
-        private List<IStateMachine> stateMachines = new List<IStateMachine>();
+        private readonly List<IStateMachine> stateMachines = new List<IStateMachine>();
+        public int Count => stateMachines.Count;
+        private readonly HashSet<IStateMachine> stateMachinesToRemove = new HashSet<IStateMachine>();
+        // todo: this is a naive starting estimate. potentiallly gauge how often to trigger cleanup
+        public static int CleanupThreshold { get; set; } = 4;
 
         public void Register(IStateMachine stateMachine)
             => stateMachines.Add(stateMachine);
 
         public void Deregister(IStateMachine stateMachine)
-            => stateMachines.Remove(stateMachine);
+        {
+            stateMachinesToRemove.Add(stateMachine);
+        }
 
         private void Awake()
         {
@@ -26,25 +32,55 @@ namespace KDMagical.SUSMachine
 
         private void Update()
         {
-            foreach (var stateMachine in stateMachines)
+            for (int i = 0; i < stateMachines.Count; i++)
             {
+                IStateMachine stateMachine = stateMachines[i];
+
+                if (stateMachinesToRemove.Contains(stateMachine))
+                    continue;
+
                 stateMachine.DoUpdate();
             }
+
+            CleanupCheck();
         }
 
         private void FixedUpdate()
         {
-            foreach (var stateMachine in stateMachines)
+            for (int i = 0; i < stateMachines.Count; i++)
             {
+                IStateMachine stateMachine = stateMachines[i];
+
+                if (stateMachinesToRemove.Contains(stateMachine))
+                    continue;
+
                 stateMachine.DoFixedUpdate();
             }
+
+            CleanupCheck();
         }
 
         private void LateUpdate()
         {
-            foreach (var stateMachine in stateMachines)
+            for (int i = 0; i < stateMachines.Count; i++)
             {
+                IStateMachine stateMachine = stateMachines[i];
+
+                if (stateMachinesToRemove.Contains(stateMachine))
+                    continue;
+
                 stateMachine.DoLateUpdate();
+            }
+
+            CleanupCheck();
+        }
+
+        private void CleanupCheck()
+        {
+            if (stateMachinesToRemove.Count > CleanupThreshold)
+            {
+                stateMachines.RemoveAll(fsm => stateMachinesToRemove.Contains(fsm));
+                stateMachinesToRemove.Clear();
             }
         }
     }
