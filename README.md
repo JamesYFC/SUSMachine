@@ -1,5 +1,7 @@
 # SUSMachine - a Simple Unity State Machine
 
+[![ci](https://github.com/JamesYFC/SUSMachine/actions/workflows/main.yml/badge.svg)](https://github.com/JamesYFC/SUSMachine/actions/workflows/main.yml)
+
 A state machine implementation with a quick, easy and nice to use API - no reflection or string names, no need to inherit anything.
 
 Supports Unity 2020.2 and up.
