@@ -1,4 +1,4 @@
-name: test-noLFS
+name: ci
 
 on:
   push:
