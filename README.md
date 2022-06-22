@@ -1,6 +1,7 @@
 # SUSMachine - a Simple Unity State Machine
 
 [![ci](https://github.com/JamesYFC/SUSMachine/actions/workflows/main.yml/badge.svg)](https://github.com/JamesYFC/SUSMachine/actions/workflows/main.yml)
+[![GitHub version](https://badge.fury.io/gh/JamesYFC%2FSUSMachine.svg)](https://badge.fury.io/gh/JamesYFC%2FSUSMachine)
 
 A state machine implementation with a quick, easy and nice to use API - no reflection or string names, no need to inherit anything.
 
@@ -80,11 +81,13 @@ using KDMagical.SUSMachine;
 
 ## Updating
 
-Unity currently doesn't support updating upm packages from git sources as of 2020.3 (i.e. you will not be notified by version updates, and the update button will not be available.)
+To update to the latest version, go to the `Simple Unity State Machine` package in the Package Manager and hit the `Update` button.
 
-However, you can simply reinstall the package by following the installation step above again.
+Note: Unity currently doesn't notify you that a new version is available for packages installed from git.
 
-The existing version of this package should be overwritten by the new version.
+### Unity 2020
+
+As the update button isn't available in 2020, reinstall the package by following the installation step above again.
 
 # Noteworthy Changes
 
