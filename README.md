@@ -58,12 +58,12 @@ private void Awake()
     /// the state machine will autmatically Close() when the gameObject is destroyed.
     /// Otherwise, you may want to call Close() in OnDestroy(), OnDisable() etc.
     /// Note: Initialization calls Enter() and Closing calls Exit().
-    stateMachine.Initialize(States.Idle, this.gameObject);
+    fsm.Initialize(States.Normal, this.gameObject);
 }
 
 void OnCollisionEnter(Collision collision)
 {
-    stateMachine.TriggerEvent(Events.Attacked);
+    fsm.TriggerEvent(Events.Attacked);
 }
 ```
 
