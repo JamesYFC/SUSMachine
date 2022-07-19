@@ -18,11 +18,11 @@ int lives = 3;
 [SerializeField]
 float blockTime = 2;
 
-StateMachine<States, Events> fsm;
+StateMachine<States, Events> stateMachine;
 
 private void Awake()
 {
-    fsm = new StateMachine<States, Events>
+    stateMachine = new StateMachine<States, Events>
     {
         AnyState =
         {
@@ -58,12 +58,12 @@ private void Awake()
     /// the state machine will autmatically Close() when the gameObject is destroyed.
     /// Otherwise, you may want to call Close() in OnDestroy(), OnDisable() etc.
     /// Note: Initialization calls Enter() and Closing calls Exit().
-    fsm.Initialize(States.Normal, this.gameObject);
+    stateMachine.Initialize(States.Normal, this.gameObject);
 }
 
 void OnCollisionEnter(Collision collision)
 {
-    fsm.TriggerEvent(Events.Attacked);
+    stateMachine.TriggerEvent(Events.Attacked);
 }
 ```
 
