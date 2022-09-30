@@ -17,6 +17,7 @@ namespace KDMagical.SUSMachine
     public interface IStateMachine<T> : IStateMachine where T : struct, System.Enum
     {
         T CurrentState { get; }
+        T? PreviousState { get; }
         T? NextState { get; }
         IStateMachine<T> Initialize(T initialState, GameObject closeOnDestroy = null);
         void SetState(T newState);
@@ -42,6 +43,7 @@ namespace KDMagical.SUSMachine
 
         protected bool HasUpdateFunctions { get; private set; }
 
+        public T? PreviousState { get; private set; }
         public T? NextState { get; private set; }
 
         public StateMachineBase() : this(StateMachineManager.Instance) { }
@@ -106,6 +108,8 @@ namespace KDMagical.SUSMachine
         public void Close()
         {
             DoExit();
+            PreviousState = null;
+            NextState = null;
             if (HasUpdateFunctions)
                 stateMachineManager.Deregister(this);
         }
@@ -170,9 +174,12 @@ namespace KDMagical.SUSMachine
         {
             NextState = newState;
             DoExit();
+
             NextState = null;
+            PreviousState = CurrentState;
             CurrentState = newState;
             currentStateEnterTime = Time.time;
+
             DoEnter();
         }
     }

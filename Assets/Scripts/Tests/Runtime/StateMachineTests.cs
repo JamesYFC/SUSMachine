@@ -472,6 +472,53 @@ namespace KDMagical.SUSMachine.Tests
             }
 
             [Test, AutoMoqData]
+            public void PreviousState_Set_Correctly(
+                IStateMachineManager manager,
+                StateAction<States> stateAction
+            )
+            {
+                bool firstEnter = true;
+
+                var sut = new StateMachine<States>(manager)
+                {
+                    AnyState =
+                    {
+                        OnEnter = fsm =>
+                        {
+                            if (firstEnter)
+                            {
+                                Assert.IsNull(fsm.PreviousState);
+                                firstEnter = false;
+                            }
+                        }
+                    },
+
+                    [States.State1] =
+                    {
+                        OnEnter = fsm => Assert.IsNull(fsm.PreviousState),
+                        OnExit = fsm => Assert.IsNull(fsm.PreviousState),
+                    },
+
+                    [States.State2] =
+                    {
+                        OnEnter = fsm => Assert.AreEqual(States.State1, fsm.PreviousState),
+                        OnExit = fsm => Assert.AreEqual(States.State1, fsm.PreviousState),
+                    },
+
+                    [States.State3] =
+                    {
+                        OnEnter = fsm => Assert.AreEqual(States.State2, fsm.PreviousState),
+                        OnExit = fsm => Assert.AreEqual(States.State2, fsm.PreviousState),
+                    }
+                };
+
+                sut.Initialize(States.State1);
+                sut.SetState(States.State2);
+                sut.SetState(States.State3);
+                sut.Close();
+            }
+
+            [Test, AutoMoqData]
             public void Events_Called_Before_Specific_State_Transition(
                 IStateMachineManager manager,
                 Mock<StateAction<States>> shouldBeCalledActionMock,
