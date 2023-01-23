@@ -33,8 +33,9 @@ namespace KDMagical.SUSMachine
             if (updateTransitions == null || !updateTransitions.TryGetValue(transitionType, out var transitions))
                 return null;
 
-            foreach (var transition in transitions)
+            for (int i = 0; i < transitions.Count; i++)
             {
+                Transition<TStates> transition = transitions[i];
                 var result = transition(StateMachine);
 
                 if (result != null)
@@ -79,8 +80,9 @@ namespace KDMagical.SUSMachine
             if (eventTransitions == null || !eventTransitions.TryGetValue(fsmEvent, out var transitions))
                 return null;
 
-            foreach (var transition in transitions)
+            for (int i = 0; i < transitions.Count; i++)
             {
+                Transition<TStates> transition = transitions[i];
                 var result = transition(StateMachine);
 
                 if (result != null)
