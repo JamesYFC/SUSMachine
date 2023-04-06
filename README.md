@@ -69,11 +69,14 @@ void OnCollisionEnter(Collision collision)
 
 # Installing
 
-In the unity package manager window, click `add package from git URL...` and paste the following:
+via OpenUPM
+- `openupm add com.kdmagic.susmachine`
 
-`https://github.com/JamesYFC/SUSMachine.git?path=/Packages/com.kdmagical.susmachine#release`
+via Unity Package Manager
+- In the unity package manager window, click `add package from git URL...` and paste the following:
+- `https://github.com/JamesYFC/SUSMachine.git?path=/Packages/com.kdmagical.susmachine#release`
 
-Now just import the namespace and you're good to go.
+After installation, just import the namespace and you're good to go.
 
 ```cs
 using KDMagical.SUSMachine;
