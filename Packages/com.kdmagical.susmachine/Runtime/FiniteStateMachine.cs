@@ -11,7 +11,7 @@ namespace KDMagical.SUSMachine
         void DoFixedUpdate();
         void DoLateUpdate();
 
-        void Close();
+        void Close(bool callExit);
     }
 
     public interface IStateMachine<T> : IStateMachine where T : struct, System.Enum
@@ -105,9 +105,10 @@ namespace KDMagical.SUSMachine
             return false;
         }
 
-        public void Close()
+        public void Close(bool callExit = true)
         {
-            DoExit();
+            if (callExit)
+                DoExit();
             PreviousState = null;
             NextState = null;
             if (HasUpdateFunctions)

@@ -103,6 +103,25 @@ namespace KDMagical.SUSMachine.Tests
             }
 
             [Test, AutoMoqData]
+            public void Close_SkipExit_Exit_Actions_Not_Called(IStateMachineManager manager)
+            {
+                var anyStateMock = new Mock<Stateless<States>>();
+                var behaviourMock1 = new Mock<Stateless<States>>();
+
+                var sut = new StateMachine<States>(manager)
+                {
+                    AnyState = anyStateMock.Object,
+                    [States.State1] = behaviourMock1.Object
+                };
+
+                sut.Initialize(States.State1);
+
+                sut.Close(false);
+                anyStateMock.Verify(s => s.DoExit(), Times.Never);
+                behaviourMock1.Verify(s => s.DoExit(), Times.Never);
+            }
+
+            [Test, AutoMoqData]
             public void Tick_Actions_Called(IStateMachineManager manager, States state)
             {
                 var anyStateMock = new Mock<Stateless<States>>();
